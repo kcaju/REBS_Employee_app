@@ -164,17 +164,31 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
+              runSpacing: 6,
               children: [
                 ActionChip(
-                  label: const Text('Emulator (10.0.2.2)'),
+                  avatar: const Icon(Icons.phone_android, size: 16, color: Colors.green),
+                  label: const Text('In-App Standalone (127.0.0.1)'),
                   onPressed: () {
-                    _urlController.text = 'http://10.0.2.2:8080';
+                    _urlController.text = 'http://127.0.0.1:8085';
                   },
                 ),
                 ActionChip(
-                  label: const Text('Localhost (8080)'),
+                  label: const Text('USB (localhost:8085)'),
                   onPressed: () {
-                    _urlController.text = 'http://localhost:8080';
+                    _urlController.text = 'http://localhost:8085';
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Wi-Fi (192.168.1.100:8085)'),
+                  onPressed: () {
+                    _urlController.text = 'http://192.168.1.100:8085';
+                  },
+                ),
+                ActionChip(
+                  label: const Text('Emulator (10.0.2.2:8085)'),
+                  onPressed: () {
+                    _urlController.text = 'http://10.0.2.2:8085';
                   },
                 ),
               ],

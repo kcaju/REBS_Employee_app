@@ -50,21 +50,25 @@ lib/
 
 ## 2. Setup & Running the Application
 
-### Prerequisites
-- Flutter SDK 3.13+ (Tested on Flutter 3.47 / Dart 3.13)
-- Android Studio / VS Code with Android Emulator or Physical Device
+### Option A: 100% Standalone In-App Mode (Zero Setup — Recommended for APK Testing)
+The application includes an **In-App Embedded Mock Server** running on internal loopback (`http://127.0.0.1:8085`).
+- Simply install and open the APK on any phone.
+- The app automatically starts its internal `shelf` HTTP server and connects via `dio` over real TCP loopback.
+- **Zero commands on your computer are required!**
 
-### Step 1: Start the Local Mock API Server
-Run the pure Dart mock server:
-```bash
-dart run bin/mock_server.dart
-```
-The server will start on port `8080`:
-- **Android Emulator URL**: `http://10.0.2.2:8080`
-- **iOS Simulator / Desktop**: `http://localhost:8080`
-- **Physical Device**: Connect phone via USB and run `adb reverse tcp:8080 tcp:8080`, then point to `http://localhost:8080`.
+### Option B: External Mock Server CLI (For Terminal Inspection)
+If you prefer running the mock server in a separate terminal to view real-time request logs:
+1. Start the server:
+   ```bash
+   dart run bin/mock_server.dart
+   ```
+2. The server runs on port `8085`:
+   - **Android Emulator**: Uses `http://10.0.2.2:8085`
+   - **Desktop / iOS Simulator**: Uses `http://localhost:8085`
+   - **Physical Device over Wi-Fi**: Select `Wi-Fi (192.168.1.X:8085)` in the Dev Drawer.
+   - **Physical Device over USB**: Run `adb reverse tcp:8085 tcp:8085` and select `localhost:8085`.
 
-### Step 2: Run the Flutter App
+### Running from Source
 ```bash
 flutter pub get
 flutter run

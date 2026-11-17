@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/database/app_database.dart';
+import 'core/network/api_client.dart';
 import 'core/services/sync_queue_manager.dart';
 import 'features/attendance/data/attendance_local_data_source.dart';
 import 'features/attendance/data/attendance_remote_data_source.dart';
@@ -11,12 +12,22 @@ import 'features/dashboard/presentation/dashboard_bloc.dart';
 import 'features/dashboard/presentation/dashboard_screen.dart';
 import 'features/leave/data/leave_repository_impl.dart';
 import 'features/leave/presentation/leave_bloc.dart';
+import 'server/embedded_mock_server.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize SQLite database
   await AppDatabase.instance.database;
+
+  // Start Embedded Local Mock Server automatically (100% Standalone APK Mode)
+  try {
+    final serverPort = await EmbeddedMockServer.instance.start(defaultPort: 8085);
+    ApiConfig.defaultBaseUrl = 'http://127.0.0.1:$serverPort';
+    ApiConfig.activeBaseUrl = ApiConfig.defaultBaseUrl;
+  } catch (_) {
+    // Falls back gracefully if running in constrained environment
+  }
 
   // Initialize Shared Data Sources & Services
   final attendanceLocalDS = AttendanceLocalDataSource();
