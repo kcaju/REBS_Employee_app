@@ -96,12 +96,33 @@ class LocationService {
     }
 
     try {
-      final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 10),
-        ),
-      );
+      Position? position;
+      try {
+        position = await Geolocator.getCurrentPosition(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            timeLimit: Duration(seconds: 10),
+          ),
+        );
+      } catch (_) {
+        // Fallback: If high-accuracy satellite GPS timed out (very common indoors),
+        // try last known position or balanced network/Wi-Fi provider.
+        position = await Geolocator.getLastKnownPosition();
+        if (position == null) {
+          position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.medium,
+              timeLimit: Duration(seconds: 8),
+            ),
+          );
+        }
+      }
+
+      if (position == null) {
+        return LocationResult.failure(
+          message: 'Unable to acquire GPS location. Please check that GPS is enabled and has clear sky view.',
+        );
+      }
 
       final distance = Geolocator.distanceBetween(
         position.latitude,
