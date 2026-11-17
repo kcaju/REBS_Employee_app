@@ -89,9 +89,9 @@ class LeaveCubit extends Cubit<LeaveState> {
         availableBalance: available,
       );
 
-      // Refresh balance and list
+      // Refresh balance and list from persistent storage
       final newBalance = await repository.getLeaveBalance();
-      final updatedRequests = [created, ...state.requests.where((r) => r.id != created.id)];
+      final updatedRequests = await repository.getLeaveRequests();
 
       emit(state.copyWith(
         isSubmitting: false,

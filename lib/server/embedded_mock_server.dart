@@ -15,6 +15,10 @@ class EmbeddedMockServer {
 
   final MockApiServer apiServer = MockApiServer();
 
+  void syncInitialState(List<Map<String, dynamic>> requests) {
+    apiServer.syncWithLocalRequests(requests);
+  }
+
   Future<int> start({int defaultPort = 8085}) async {
     if (_server != null) return _server!.port;
 
@@ -82,6 +86,35 @@ class MockApiServer {
     _initializeInitialAttendance();
     _initializeInitialLeaveRequests();
     _setupRoutes();
+  }
+
+  void syncWithLocalRequests(List<Map<String, dynamic>> requests) {
+    if (requests.isNotEmpty) {
+      _leaveRequests.clear();
+      _leaveRequests.addAll(requests);
+
+      int casual = 8;
+      int sick = 5;
+      for (final req in requests) {
+        final id = req['id'] as String? ?? '';
+        if (id == 'LR-001' || id == 'LR-002') continue;
+
+        final status = (req['status'] as String? ?? '').toLowerCase();
+        if (status == 'approved' || status == 'pending') {
+          final start = DateTime.tryParse(req['start_date'] as String? ?? '') ?? DateTime.now();
+          final end = DateTime.tryParse(req['end_date'] as String? ?? '') ?? start;
+          final days = end.difference(start).inDays + 1;
+          final type = (req['leave_type'] as String? ?? '').toLowerCase();
+          if (type == 'casual') {
+            casual -= days;
+          } else if (type == 'sick') {
+            sick -= days;
+          }
+        }
+      }
+      _casualLeaveBalance = casual.clamp(0, 8);
+      _sickLeaveBalance = sick.clamp(0, 5);
+    }
   }
 
   void _initializeInitialLeaveRequests() {

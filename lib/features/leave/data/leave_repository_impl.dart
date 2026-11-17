@@ -19,24 +19,47 @@ class LeaveRepository {
         connectivity = connectivity ?? Connectivity();
 
   Future<LeaveBalance> getLeaveBalance() async {
+    // 1. Calculate authoritative remaining balance based on SQLite leave requests
+    final localRequests = await localDataSource.getLeaveRequests();
+    int casual = 8;
+    int sick = 5;
+    for (final req in localRequests) {
+      if (req.id == 'LR-001' || req.id == 'LR-002') continue;
+      if (req.status == LeaveStatus.approved || req.status == LeaveStatus.pending) {
+        if (req.leaveType == LeaveType.casual) {
+          casual -= req.daysCount;
+        } else if (req.leaveType == LeaveType.sick) {
+          sick -= req.daysCount;
+        }
+      }
+    }
+    final calculatedBalance = LeaveBalance(
+      casualLeaveRemaining: casual.clamp(0, 8),
+      sickLeaveRemaining: sick.clamp(0, 5),
+    );
+
     try {
       final balance = await remoteDataSource.fetchLeaveBalance();
+      if (calculatedBalance.casualLeaveRemaining < balance.casualLeaveRemaining ||
+          calculatedBalance.sickLeaveRemaining < balance.sickLeaveRemaining) {
+        return calculatedBalance;
+      }
       return balance;
     } catch (_) {
-      // Fallback default balance if offline
-      return const LeaveBalance(casualLeaveRemaining: 8, sickLeaveRemaining: 5);
+      return calculatedBalance;
     }
   }
 
   Future<List<LeaveRequest>> getLeaveRequests({bool forceRefresh = false}) async {
+    final localList = await localDataSource.getLeaveRequests();
     try {
       final remoteList = await remoteDataSource.fetchLeaveRequests();
-      await localDataSource.clearAll();
+      // Upsert remote requests without clearing locally submitted requests
       await localDataSource.saveLeaveRequests(remoteList);
-      return remoteList;
+      return await localDataSource.getLeaveRequests();
     } catch (_) {
       // Offline fallback: load cached requests from SQLite
-      return await localDataSource.getLeaveRequests();
+      return localList;
     }
   }
 

@@ -107,5 +107,37 @@ void main() {
       expect(result.isValid, isFalse);
       expect(result.errorMessage, contains('exceed available Sick balance'));
     });
+
+    test('Submitted pending leave reduces available balance in leave repository calculations', () {
+      final initialBalance = const LeaveBalance(casualLeaveRemaining: 8, sickLeaveRemaining: 5);
+      final submittedPendingLeave = LeaveRequest(
+        id: 'local_1731846000000',
+        employeeId: 'EMP-1049',
+        leaveType: LeaveType.casual,
+        startDate: DateTime(2026, 11, 24),
+        endDate: DateTime(2026, 11, 25), // 2 days
+        reason: 'Personal travel and family commitment',
+        status: LeaveStatus.pending,
+        createdAt: DateTime(2026, 11, 17),
+      );
+
+      // Deduct days from pending leave
+      final remainingCasual = initialBalance.casualLeaveRemaining - submittedPendingLeave.daysCount;
+      expect(remainingCasual, equals(6));
+
+      // Attempting to request 7 days when remaining is 6 must be rejected
+      final validation = LeaveValidator.validate(
+        leaveType: LeaveType.casual,
+        startDate: DateTime(2026, 11, 27),
+        endDate: DateTime(2026, 12, 3), // 7 days
+        reason: 'Long winter break vacation trip',
+        availableBalance: remainingCasual,
+        existingRequests: [submittedPendingLeave],
+        currentCompanyDate: fixedCompanyDate,
+      );
+
+      expect(validation.isValid, isFalse);
+      expect(validation.errorMessage, contains('exceed available Casual balance (6)'));
+    });
   });
 }

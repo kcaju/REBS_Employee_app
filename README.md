@@ -107,7 +107,7 @@ Follow these step-by-step instructions to experience every feature and validatio
 
 ### Walkthrough 1: Dashboard & Online Punch-In
 1. **Launch the App**: The app opens to the REBS Workspace Dashboard with the dark purple background and glowing card containers.
-2. **Review Header**: Notice the employee profile card (**EMP-1049**, "Software Engineer", Engineering department) and company date.
+2. **Review Header**: Notice the employee profile (**EMP-1049**, "Software Engineer", Engineering department) and company date.
 3. **Verify Geofence State**:
    - Tap the **Gear Icon (⚙️)** in the top-right app bar to open the Dev Drawer.
    - Confirm **Location Simulation** is set to **Inside Office (<= 200m)**.
@@ -245,7 +245,15 @@ Follow these step-by-step instructions to experience every feature and validatio
      - The sheet closes smoothly.
      - A dark floating snackbar with an emerald border confirms: *"Leave application submitted successfully (Pending Approval)"*.
      - The new leave request appears at the top of the **Leave History** screen with a `Pending` (amber) badge.
-     - The available balance on the dashboard updates accordingly.
+     - The available balance on the dashboard updates accordingly (e.g. Casual balance drops from 8 to 6 days).
+7. **Verify Persistence Across App Kill (Cold Restart)**:
+   - Force close (swipe away/kill) the application from your phone's recent apps switcher.
+   - Reopen the app.
+   - **Expected Outcome**:
+     - **Leave Balances**: The dashboard card immediately shows the remaining balance (`6 Days` Casual, `5 Days` Sick) loaded from persistent SQLite storage.
+     - **Leave History**: Tap **Manage & Apply ➔**; the submitted leave remains at the top with `Pending` status alongside the seeded records.
+     - **Balance Cards**: The top balance cards in the Leave History screen also display the remaining balance (`6 Days` and `5 Days`).
+     - **Subsequent Validations**: Opening the Apply Leave form correctly limits subsequent requests to the remaining balance (6 days).
 
 ---
 
@@ -291,7 +299,7 @@ The project includes unit, domain, and widget test suites covering all critical 
 flutter test
 ```
 
-### Complete Test Coverage Matrix (10/10 Passing)
+### Complete Test Coverage Matrix (11/11 Passing)
 
 | # | Test Suite | Test Case Description | Requirement Covered |
 | :-: | :--- | :--- | :--- |
@@ -301,10 +309,11 @@ flutter test
 | **4** | `leave_validator_test.dart` | End date before start date is rejected | Date range order validation |
 | **5** | `leave_validator_test.dart` | Reason with less than 10 non-whitespace characters is rejected | Character count validation |
 | **6** | `leave_validator_test.dart` | Requested days exceeding available balance is rejected | Leave balance boundary check |
-| **7** | `attendance_test.dart` | Check-out without check-in is rejected | Attendance state machine rule |
-| **8** | `attendance_test.dart` | Repeated submission or retry does not create duplicate attendance | RFC 4122 v4 Idempotency key |
-| **9** | `attendance_test.dart` | Pending attendance survives persistence and syncs in order (FIFO) | SQLite persistence & FIFO order |
-| **10** | `widget_test.dart` | Dashboard renders Today's status chip, 'Pending Sync' badge, and pending count badge | UI state & offline badge rendering |
+| **7** | `leave_validator_test.dart` | Submitted pending leave reduces available balance in leave repository calculations | Persistent balance deduction rule |
+| **8** | `attendance_test.dart` | Check-out without check-in is rejected | Attendance state machine rule |
+| **9** | `attendance_test.dart` | Repeated submission or retry does not create duplicate attendance | RFC 4122 v4 Idempotency key |
+| **10** | `attendance_test.dart` | Pending attendance survives persistence and syncs in order (FIFO) | SQLite persistence & FIFO order |
+| **11** | `widget_test.dart` | Dashboard renders Today's status chip, 'Pending Sync' badge, and pending count badge | UI state & offline badge rendering |
 
 ---
 

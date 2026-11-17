@@ -11,6 +11,7 @@ import 'features/attendance/presentation/attendance_bloc.dart';
 import 'features/dashboard/data/dashboard_repository_impl.dart';
 import 'features/dashboard/presentation/dashboard_bloc.dart';
 import 'features/dashboard/presentation/dashboard_screen.dart';
+import 'features/leave/data/leave_local_data_source.dart';
 import 'features/leave/data/leave_repository_impl.dart';
 import 'features/leave/presentation/leave_bloc.dart';
 import 'server/embedded_mock_server.dart';
@@ -21,9 +22,17 @@ void main() async {
   // Initialize SQLite database
   await AppDatabase.instance.database;
 
+  // Initialize Leave Local Data Source and ensure seed records exist
+  final leaveLocalDS = LeaveLocalDataSource();
+  await leaveLocalDS.ensureInitialSeeds();
+  final existingLeaves = await leaveLocalDS.getLeaveRequests();
+
   // Start Embedded Local Mock Server automatically (100% Standalone APK Mode)
   try {
     final serverPort = await EmbeddedMockServer.instance.start(defaultPort: 8085);
+    EmbeddedMockServer.instance.syncInitialState(
+      existingLeaves.map((r) => r.toMap()).toList(),
+    );
     ApiConfig.defaultBaseUrl = 'http://127.0.0.1:$serverPort';
     ApiConfig.activeBaseUrl = ApiConfig.defaultBaseUrl;
   } catch (_) {
@@ -45,7 +54,7 @@ void main() async {
     sync: syncQueueManager,
   );
 
-  final leaveRepository = LeaveRepository();
+  final leaveRepository = LeaveRepository(local: leaveLocalDS);
   final dashboardRepository = DashboardRepository();
 
   runApp(
