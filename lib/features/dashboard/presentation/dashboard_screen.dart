@@ -554,12 +554,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Leave Balances',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const Expanded(
+                    child: Text(
+                      'Leave Balances',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   TextButton(
@@ -698,14 +701,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Recent Attendance (Latest 5)',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                  const Expanded(
+                    child: Text(
+                      'Recent Attendance',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 8),
                   if (state.pendingSyncCount > 0)
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -720,7 +727,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                       child: Text(
-                        '${state.pendingSyncCount} pending sync',
+                        '${state.pendingSyncCount} pending',
                         style: const TextStyle(
                           fontSize: 10,
                           color: Colors.amberAccent,
