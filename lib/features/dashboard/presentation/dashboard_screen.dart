@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../attendance/domain/attendance_models.dart';
@@ -41,9 +43,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
       if (attendanceState.todayStatus == TodayAttendanceStatus.checkedIn &&
           attendanceState.checkInRecord != null) {
         setState(() {
-          _elapsedDuration = DateTime.now().difference(attendanceState.checkInRecord!.timestamp);
+          _elapsedDuration = DateTime.now().difference(
+            attendanceState.checkInRecord!.timestamp,
+          );
         });
-      } else if (attendanceState.todayStatus == TodayAttendanceStatus.checkedOut &&
+      } else if (attendanceState.todayStatus ==
+              TodayAttendanceStatus.checkedOut &&
           attendanceState.checkInRecord != null &&
           attendanceState.checkOutRecord != null) {
         setState(() {
@@ -82,7 +87,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           foregroundColor: Colors.white,
-          title: const Text('REBS Workspace', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          title: const Text(
+            'REBS Workspace',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           actions: [
             // Manual Sync Now button with indicator
             BlocBuilder<AttendanceCubit, AttendanceState>(
@@ -95,7 +103,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ? const SizedBox(
                               width: 20,
                               height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
                           : const Icon(Icons.sync, color: Colors.white),
                       tooltip: 'Sync Now',
@@ -115,7 +126,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           ),
                           child: Text(
                             '${state.pendingSyncCount}',
-                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
                           ),
                         ),
                       ),
@@ -226,27 +241,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(height: 4),
             Text(
               '${profile?.id ?? "EMP-1049"} • ${profile?.role ?? "Flutter Developer"}',
-              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-
-            // Search pill capsule matching the uploaded image
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.12)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.search, color: Colors.white.withOpacity(0.6), size: 20),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Search...',
-                    style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14),
-                  ),
-                ],
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
               ),
             ),
           ],
@@ -287,74 +284,48 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     color: Colors.white,
                   ),
                 ),
-                Builder(
-                  builder: (ctx) => IconButton(
-                    icon: const Icon(Icons.more_horiz_rounded, color: Colors.white70),
-                    tooltip: 'Options',
-                    onPressed: () => Scaffold.of(ctx).openEndDrawer(),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 8),
 
             // Main Attendance Box (Matching uploaded image)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              decoration: AppTheme.boxDecoration(radius: 24),
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 18),
+              decoration: AppTheme.boxDecoration(radius: 20),
               child: Column(
                 children: [
                   // Top Time & Date
                   Text(
                     currentTimeStr,
                     style: const TextStyle(
-                      fontSize: 28,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                       letterSpacing: 0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     currentDateStr,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: AppTheme.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 16),
 
-                  // Concentric Glowing Circular Punch Button
+                  // Concentric Glowing Circular Punch Button (compact size)
                   _buildCircularPunchButton(state),
-
-                  const SizedBox(height: 22),
-
-                  // Location Indicator at bottom of main box
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.location_on, size: 14, color: AppTheme.purpleLight),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Location: You are in Office reach',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.85),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
 
             // Secondary Stats Box (Check In, Check Out, Working Hrs)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-              decoration: AppTheme.boxDecoration(radius: 20),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              decoration: AppTheme.boxDecoration(radius: 18),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -391,7 +362,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildCircularPunchButton(AttendanceState state) {
     final isCheckedIn = state.todayStatus == TodayAttendanceStatus.checkedIn;
     final isCheckedOut = state.todayStatus == TodayAttendanceStatus.checkedOut;
-    final isNotCheckedIn = state.todayStatus == TodayAttendanceStatus.notCheckedIn;
+    final isNotCheckedIn =
+        state.todayStatus == TodayAttendanceStatus.notCheckedIn;
 
     String buttonLabel = 'PUNCH IN';
     if (isCheckedIn) buttonLabel = 'PUNCH OUT';
@@ -405,81 +377,83 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final profile = context.read<DashboardCubit>().state.profile;
               if (isNotCheckedIn) {
                 context.read<AttendanceCubit>().checkIn(
-                      employeeId: profile?.id ?? 'EMP-1049',
-                      officeLat: profile?.officeConfig.latitude ?? 9.9816,
-                      officeLng: profile?.officeConfig.longitude ?? 76.2999,
-                      radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
-                    );
+                  employeeId: profile?.id ?? 'EMP-1049',
+                  officeLat: profile?.officeConfig.latitude ?? 9.9816,
+                  officeLng: profile?.officeConfig.longitude ?? 76.2999,
+                  radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
+                );
               } else if (isCheckedIn) {
                 context.read<AttendanceCubit>().checkOut(
-                      employeeId: profile?.id ?? 'EMP-1049',
-                      officeLat: profile?.officeConfig.latitude ?? 9.9816,
-                      officeLng: profile?.officeConfig.longitude ?? 76.2999,
-                      radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
-                    );
+                  employeeId: profile?.id ?? 'EMP-1049',
+                  officeLat: profile?.officeConfig.latitude ?? 9.9816,
+                  officeLng: profile?.officeConfig.longitude ?? 76.2999,
+                  radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
+                );
               }
             }
           : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: 175,
-        height: 175,
+        width: 125,
+        height: 125,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppTheme.purplePrimary.withOpacity(canPress ? 0.45 : 0.15),
-              blurRadius: 30,
-              spreadRadius: 4,
+              color: AppTheme.purplePrimary.withOpacity(canPress ? 0.40 : 0.12),
+              blurRadius: 20,
+              spreadRadius: 2,
             ),
           ],
           border: Border.all(
             color: AppTheme.purplePrimary.withOpacity(0.55),
-            width: 5,
+            width: 3.5,
           ),
         ),
-        padding: const EdgeInsets.all(7),
+        padding: const EdgeInsets.all(5),
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
               color: AppTheme.purpleDark.withOpacity(0.9),
-              width: 3,
+              width: 2,
             ),
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: isCheckedOut
                   ? [const Color(0xFF374151), const Color(0xFF1F2937)]
-                  : [
-                      const Color(0xFF7C3AED),
-                      const Color(0xFF4C1D95),
-                    ],
+                  : [const Color(0xFF7C3AED), const Color(0xFF4C1D95)],
             ),
           ),
           child: Center(
             child: state.isSubmitting
                 ? const SizedBox(
-                    width: 32,
-                    height: 32,
-                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2.5,
+                    ),
                   )
                 : Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        isCheckedOut ? Icons.check_circle_outline_rounded : Icons.touch_app_rounded,
-                        size: 42,
+                        isCheckedOut
+                            ? Icons.check_circle_outline_rounded
+                            : Icons.touch_app_outlined,
+                        size: 32,
                         color: Colors.white,
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       Text(
                         buttonLabel,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 13,
+                          fontSize: 10.5,
                           fontWeight: FontWeight.w800,
-                          letterSpacing: 1.1,
+                          letterSpacing: 0.8,
                         ),
                       ),
                     ],
@@ -499,23 +473,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) {
     return Column(
       children: [
-        Icon(icon, size: 24, color: iconColor),
-        const SizedBox(height: 8),
+        Icon(icon, size: 20, color: iconColor),
+        const SizedBox(height: 5),
         Text(
           time,
           style: const TextStyle(
-            fontSize: 15,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 11,
-            color: AppTheme.textSecondary,
-          ),
+          style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary),
         ),
         if (syncStatus != null) ...[
           const SizedBox(height: 4),
@@ -566,7 +537,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(width: 2),
           Text(
             label,
-            style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: fg),
+            style: TextStyle(
+              fontSize: 8.5,
+              fontWeight: FontWeight.bold,
+              color: fg,
+            ),
           ),
         ],
       ),
@@ -610,7 +585,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                     child: const Text(
                       'Manage & Apply ➔',
-                      style: TextStyle(color: AppTheme.purpleLight, fontWeight: FontWeight.w600, fontSize: 13),
+                      style: TextStyle(
+                        color: AppTheme.purpleLight,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ],
@@ -624,7 +603,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E143F),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppTheme.cyanAccent.withOpacity(0.25)),
+                        border: Border.all(
+                          color: AppTheme.cyanAccent.withOpacity(0.25),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -632,14 +613,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
-                              Text('Casual Leave', style: TextStyle(fontSize: 12, color: AppTheme.cyanAccent)),
-                              Icon(Icons.beach_access_rounded, size: 16, color: AppTheme.cyanAccent),
+                              Text(
+                                'Casual Leave',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.cyanAccent,
+                                ),
+                              ),
+                              Icon(
+                                Icons.beach_access_rounded,
+                                size: 16,
+                                color: AppTheme.cyanAccent,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${state.balance.casualLeaveRemaining} Days',
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -652,7 +647,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFF1E143F),
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppTheme.amberAccent.withOpacity(0.25)),
+                        border: Border.all(
+                          color: AppTheme.amberAccent.withOpacity(0.25),
+                        ),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -660,14 +657,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
-                              Text('Sick Leave', style: TextStyle(fontSize: 12, color: AppTheme.amberAccent)),
-                              Icon(Icons.medical_services_outlined, size: 16, color: AppTheme.amberAccent),
+                              Text(
+                                'Sick Leave',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppTheme.amberAccent,
+                                ),
+                              ),
+                              Icon(
+                                Icons.medical_services_outlined,
+                                size: 16,
+                                color: AppTheme.amberAccent,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Text(
                             '${state.balance.sickLeaveRemaining} Days',
-                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ],
                       ),
@@ -698,19 +709,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 children: [
                   const Text(
                     'Recent Attendance (Latest 5)',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                   if (state.pendingSyncCount > 0)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0x33F59E0B),
                         borderRadius: BorderRadius.circular(6),
-                        border: Border.all(color: Colors.amberAccent.withOpacity(0.5)),
+                        border: Border.all(
+                          color: Colors.amberAccent.withOpacity(0.5),
+                        ),
                       ),
                       child: Text(
                         '${state.pendingSyncCount} pending sync',
-                        style: const TextStyle(fontSize: 10, color: Colors.amberAccent, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.amberAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                 ],
@@ -731,7 +755,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final isCheckIn = record.type == AttendanceType.checkIn;
                   return Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1E143F),
                       borderRadius: BorderRadius.circular(12),
@@ -744,11 +771,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           children: [
                             CircleAvatar(
                               radius: 14,
-                              backgroundColor: isCheckIn ? const Color(0x3322D3EE) : const Color(0x33FB923C),
+                              backgroundColor: isCheckIn
+                                  ? const Color(0x3322D3EE)
+                                  : const Color(0x33FB923C),
                               child: Icon(
-                                isCheckIn ? Icons.login_rounded : Icons.logout_rounded,
+                                isCheckIn
+                                    ? Icons.login_rounded
+                                    : Icons.logout_rounded,
                                 size: 14,
-                                color: isCheckIn ? AppTheme.cyanAccent : AppTheme.amberAccent,
+                                color: isCheckIn
+                                    ? AppTheme.cyanAccent
+                                    : AppTheme.amberAccent,
                               ),
                             ),
                             const SizedBox(width: 10),
@@ -757,11 +790,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               children: [
                                 Text(
                                   isCheckIn ? 'Check In' : 'Check Out',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                    color: Colors.white,
+                                  ),
                                 ),
                                 Text(
                                   timeFormat.format(record.timestamp),
-                                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppTheme.textMuted,
+                                  ),
                                 ),
                               ],
                             ),
