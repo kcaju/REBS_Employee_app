@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/app_snackbar.dart';
 import '../../attendance/domain/attendance_models.dart';
 import '../../attendance/presentation/attendance_bloc.dart';
 import '../../leave/presentation/leave_bloc.dart';
@@ -169,26 +170,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: MultiBlocListener(
             listeners: [
               BlocListener<AttendanceCubit, AttendanceState>(
+                listenWhen: (previous, current) =>
+                    (previous.errorMessage != current.errorMessage && current.errorMessage != null) ||
+                    (previous.successMessage != current.successMessage && current.successMessage != null),
                 listener: (context, state) {
                   if (state.errorMessage != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.errorMessage!),
-                        backgroundColor: Colors.red.shade700,
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 4),
-                      ),
-                    );
-                  }
-                  if (state.successMessage != null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(state.successMessage!),
-                        backgroundColor: Colors.green.shade700,
-                        behavior: SnackBarBehavior.floating,
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
+                    AppSnackBar.showError(context, state.errorMessage);
+                    context.read<AttendanceCubit>().clearMessages();
+                  } else if (state.successMessage != null) {
+                    AppSnackBar.showSuccess(context, state.successMessage!);
+                    context.read<AttendanceCubit>().clearMessages();
                   }
                 },
               ),

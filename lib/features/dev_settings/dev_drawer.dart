@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import '../../core/network/api_client.dart';
 import '../../core/services/location_service.dart';
 import '../../core/theme/app_theme.dart';
@@ -62,10 +63,18 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                 children: [
                   SwitchListTile(
                     activeColor: AppTheme.purplePrimary,
-                    title: const Text('Simulate Location', style: TextStyle(color: Colors.white, fontSize: 14)),
+                    title: const Text(
+                      'Simulate Location',
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                     subtitle: Text(
-                      LocationService.simulateLocation ? 'Simulated coordinates active' : 'Simulation is OFF',
-                      style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12),
+                      LocationService.simulateLocation
+                          ? 'Simulated coordinates active'
+                          : 'Simulation is OFF',
+                      style: const TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 12,
+                      ),
                     ),
                     value: LocationService.simulateLocation,
                     onChanged: (val) {
@@ -77,23 +86,45 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                     const Divider(height: 1, color: Colors.white10),
                     RadioListTile<bool>(
                       activeColor: AppTheme.purplePrimary,
-                      title: const Text('Inside Office (<= 200m)', style: TextStyle(color: Colors.white, fontSize: 13)),
-                      subtitle: const Text('Ernakulam (Lat: 9.9816, Lng: 76.2999)', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                      title: const Text(
+                        'Inside Office (<= 200m)',
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                      subtitle: const Text(
+                        'Ernakulam (Lat: 9.9816, Lng: 76.2999)',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
                       value: true,
                       groupValue: LocationService.simulateInsideOffice,
                       onChanged: (val) {
-                        setState(() => LocationService.simulateInsideOffice = val!);
+                        setState(
+                          () => LocationService.simulateInsideOffice = val!,
+                        );
                         widget.onSettingsChanged();
                       },
                     ),
                     RadioListTile<bool>(
                       activeColor: AppTheme.purplePrimary,
-                      title: const Text('Outside Office (> 200m)', style: TextStyle(color: Colors.white, fontSize: 13)),
-                      subtitle: const Text('Simulates 1.6 km away (Violation test)', style: TextStyle(color: AppTheme.textMuted, fontSize: 11)),
+                      title: const Text(
+                        'Outside Office (> 200m)',
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                      subtitle: const Text(
+                        'Simulates 1.6 km away (Violation test)',
+                        style: TextStyle(
+                          color: AppTheme.textMuted,
+                          fontSize: 11,
+                        ),
+                      ),
                       value: false,
                       groupValue: LocationService.simulateInsideOffice,
                       onChanged: (val) {
-                        setState(() => LocationService.simulateInsideOffice = val!);
+                        setState(
+                          () => LocationService.simulateInsideOffice = val!,
+                        );
                         widget.onSettingsChanged();
                       },
                     ),
@@ -135,23 +166,38 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                 items: const [
                   DropdownMenuItem(
                     value: 'normal',
-                    child: Text('Normal (200 / 201 OK)', style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      'Normal (200 / 201 OK)',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'slow',
-                    child: Text('Slow Response / Timeout', style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      'Slow Response / Timeout',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'error',
-                    child: Text('500 Server Error', style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      '500 Server Error',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'conflict',
-                    child: Text('409 Duplicate Conflict', style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      '409 Duplicate Conflict',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   DropdownMenuItem(
                     value: 'leave_reject',
-                    child: Text('422 Leave Reject', style: TextStyle(color: Colors.white)),
+                    child: Text(
+                      '422 Leave Reject',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
                 onChanged: (val) {
@@ -185,7 +231,11 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_rounded, color: Color(0xFF34D399), size: 22),
+                  const Icon(
+                    Icons.check_circle_rounded,
+                    color: Color(0xFF34D399),
+                    size: 22,
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -193,12 +243,19 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                       children: [
                         const Text(
                           'In-App Mock Server Active',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF34D399)),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                            color: Color(0xFF34D399),
+                          ),
                         ),
                         const SizedBox(height: 2),
                         Text(
                           'Running on internal loopback (127.0.0.1:${EmbeddedMockServer.instance.port})',
-                          style: const TextStyle(fontSize: 11, color: AppTheme.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: AppTheme.textSecondary,
+                          ),
                         ),
                       ],
                     ),
@@ -225,7 +282,9 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                 foregroundColor: Colors.orangeAccent,
                 side: const BorderSide(color: Colors.orangeAccent),
                 padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               icon: const Icon(Icons.restart_alt_rounded),
               label: const Text("Reset Today's Session"),
@@ -247,7 +306,11 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
               ),
               child: const Text(
                 'Tip for Reviewers:\n• Built-in mock HTTP server runs 100% standalone.\n• Change "Server Mock Scenarios" to test error/conflict handling.\n• Use "Reset Today\'s Session" to test Check-In / Check-Out again.',
-                style: TextStyle(fontSize: 11, color: AppTheme.textSecondary, height: 1.4),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppTheme.textSecondary,
+                  height: 1.4,
+                ),
               ),
             ),
           ],

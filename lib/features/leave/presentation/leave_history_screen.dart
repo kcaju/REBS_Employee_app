@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_background.dart';
+import '../../../core/widgets/app_snackbar.dart';
 import '../domain/leave_models.dart';
 import 'leave_bloc.dart';
 import 'apply_leave_sheet.dart';
@@ -49,37 +50,11 @@ class LeaveHistoryScreen extends StatelessWidget {
               (previous.successMessage != current.successMessage && current.successMessage != null),
           listener: (context, state) {
             if (state.errorMessage != null) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.error_outline, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(state.errorMessage!)),
-                    ],
-                  ),
-                  backgroundColor: Colors.red.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 4),
-                ),
-              );
+              AppSnackBar.showError(context, state.errorMessage);
+              context.read<LeaveCubit>().clearMessages();
             } else if (state.successMessage != null) {
-              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.check_circle_outline, color: Colors.white),
-                      const SizedBox(width: 8),
-                      Expanded(child: Text(state.successMessage!)),
-                    ],
-                  ),
-                  backgroundColor: Colors.green.shade700,
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 3),
-                ),
-              );
+              AppSnackBar.showSuccess(context, state.successMessage!);
+              context.read<LeaveCubit>().clearMessages();
             }
           },
           builder: (context, state) {

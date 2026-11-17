@@ -113,7 +113,6 @@ class AttendanceCubit extends Cubit<AttendanceState> {
       emit(state.copyWith(
         isSyncing: update.isSyncing,
         pendingSyncCount: update.pendingCount,
-        successMessage: update.lastMessage,
       ));
       if (!update.isSyncing) {
         // Refresh recent records and today's session after sync completes
@@ -281,9 +280,17 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   }
 
   Future<void> syncNow() async {
-    emit(state.copyWith(isSyncing: true, clearError: true));
+    emit(state.copyWith(isSyncing: true, clearError: true, clearSuccess: true));
     await repository.syncPendingEvents();
     await loadAttendanceData(silent: true);
+    emit(state.copyWith(
+      isSyncing: false,
+      successMessage: 'Records synced successfully!',
+    ));
+  }
+
+  void clearMessages() {
+    emit(state.copyWith(clearError: true, clearSuccess: true));
   }
 
   Future<void> resetTodaySession() async {

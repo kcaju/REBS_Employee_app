@@ -108,4 +108,8 @@ class LeaveCubit extends Cubit<LeaveState> {
       return false;
     }
   }
+
+  void clearMessages() {
+    emit(state.copyWith(clearError: true, clearSuccess: true));
+  }
 }
