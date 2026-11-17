@@ -16,11 +16,19 @@ class ApplyLeaveSheet extends StatefulWidget {
 class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
   final _formKey = GlobalKey<FormState>();
   LeaveType _selectedType = LeaveType.casual;
-  DateTime _startDate = DateTime.now();
-  DateTime _endDate = DateTime.now();
+  late DateTime _startDate;
+  late DateTime _endDate;
   final TextEditingController _reasonController = TextEditingController();
 
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+    _startDate = DateTime(now.year, now.month, now.day);
+    _endDate = DateTime(now.year, now.month, now.day);
+  }
 
   @override
   void dispose() {
@@ -36,11 +44,13 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
   }
 
   Future<void> _pickStartDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
     final picked = await showDatePicker(
       context: context,
-      initialDate: _startDate,
-      firstDate: DateTime.now().subtract(const Duration(days: 0)),
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: _startDate.isBefore(today) ? today : _startDate,
+      firstDate: today,
+      lastDate: today.add(const Duration(days: 365)),
     );
     if (picked != null) {
       setState(() {
@@ -53,11 +63,14 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
   }
 
   Future<void> _pickEndDate() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final minDate = _startDate.isBefore(today) ? today : _startDate;
     final picked = await showDatePicker(
       context: context,
-      initialDate: _endDate.isBefore(_startDate) ? _startDate : _endDate,
-      firstDate: _startDate,
-      lastDate: DateTime.now().add(const Duration(days: 365)),
+      initialDate: _endDate.isBefore(minDate) ? minDate : _endDate,
+      firstDate: minDate,
+      lastDate: today.add(const Duration(days: 365)),
     );
     if (picked != null) {
       setState(() {
@@ -68,26 +81,7 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<LeaveCubit, LeaveState>(
-      listener: (context, state) {
-        if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: Colors.red.shade700,
-            ),
-          );
-        }
-        if (state.successMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.successMessage!),
-              backgroundColor: Colors.green.shade700,
-            ),
-          );
-          Navigator.pop(context);
-        }
-      },
+    return BlocBuilder<LeaveCubit, LeaveState>(
       builder: (context, state) {
         final available = _selectedType == LeaveType.casual
             ? state.balance.casualLeaveRemaining
@@ -268,26 +262,29 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                    onPressed: state.isSubmitting
-                        ? null
-                        : () {
-                            if (_formKey.currentState!.validate()) {
-                              context.read<LeaveCubit>().applyLeave(
-                                    employeeId: widget.employeeId,
-                                    type: _selectedType,
-                                    startDate: _startDate,
-                                    endDate: _endDate,
-                                    reason: _reasonController.text.trim(),
-                                  );
-                            }
-                          },
-                    child: state.isSubmitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Text('Submit Application', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        final cubit = context.read<LeaveCubit>();
+                        final employeeId = widget.employeeId;
+                        final type = _selectedType;
+                        final startDate = _startDate;
+                        final endDate = _endDate;
+                        final reason = _reasonController.text.trim();
+
+                        // Close form automatically
+                        Navigator.pop(context);
+
+                        // Trigger submission
+                        cubit.applyLeave(
+                          employeeId: employeeId,
+                          type: type,
+                          startDate: startDate,
+                          endDate: endDate,
+                          reason: reason,
+                        );
+                      }
+                    },
+                    child: const Text('Submit Application', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),

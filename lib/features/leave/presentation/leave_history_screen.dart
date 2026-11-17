@@ -37,71 +37,117 @@ class LeaveHistoryScreen extends StatelessWidget {
           );
         },
       ),
-      body: BlocBuilder<LeaveCubit, LeaveState>(
+      body: BlocConsumer<LeaveCubit, LeaveState>(
+        listenWhen: (previous, current) =>
+            (previous.errorMessage != current.errorMessage && current.errorMessage != null) ||
+            (previous.successMessage != current.successMessage && current.successMessage != null),
+        listener: (context, state) {
+          if (state.errorMessage != null) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(state.errorMessage!)),
+                  ],
+                ),
+                backgroundColor: Colors.red.shade700,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 4),
+              ),
+            );
+          } else if (state.successMessage != null) {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check_circle_outline, color: Colors.white),
+                    const SizedBox(width: 8),
+                    Expanded(child: Text(state.successMessage!)),
+                  ],
+                ),
+                backgroundColor: Colors.green.shade700,
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 3),
+              ),
+            );
+          }
+        },
         builder: (context, state) {
           if (state.isLoading && state.requests.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return RefreshIndicator(
-            onRefresh: () => context.read<LeaveCubit>().loadLeaveData(),
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Leave Balances Cards
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildBalanceCard(
-                        context,
-                        title: 'Casual Leave',
-                        balance: state.balance.casualLeaveRemaining,
-                        color: Colors.blue.shade700,
-                        icon: Icons.beach_access,
+          return Column(
+            children: [
+              if (state.isSubmitting)
+                const LinearProgressIndicator(),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () => context.read<LeaveCubit>().loadLeaveData(),
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      // Leave Balances Cards
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildBalanceCard(
+                              context,
+                              title: 'Casual Leave',
+                              balance: state.balance.casualLeaveRemaining,
+                              color: Colors.blue.shade700,
+                              icon: Icons.beach_access,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildBalanceCard(
+                              context,
+                              title: 'Sick Leave',
+                              balance: state.balance.sickLeaveRemaining,
+                              color: Colors.teal.shade700,
+                              icon: Icons.medical_services_outlined,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildBalanceCard(
-                        context,
-                        title: 'Sick Leave',
-                        balance: state.balance.sickLeaveRemaining,
-                        color: Colors.teal.shade700,
-                        icon: Icons.medical_services_outlined,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
+                      const SizedBox(height: 20),
 
-                Text(
-                  'Application History',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        'Application History',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
-                ),
-                const SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                if (state.requests.isEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(32),
-                    alignment: Alignment.center,
-                    child: Column(
-                      children: [
-                        Icon(Icons.calendar_today_outlined, size: 48, color: Colors.grey.shade400),
-                        const SizedBox(height: 12),
-                        Text(
-                          'No leave applications yet',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      ],
-                    ),
-                  )
-                else
-                  ...state.requests.map((req) => _buildLeaveItem(context, req)),
-                const SizedBox(height: 60),
-              ],
-            ),
+                      if (state.requests.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(32),
+                          alignment: Alignment.center,
+                          child: Column(
+                            children: [
+                              Icon(Icons.calendar_today_outlined, size: 48, color: Colors.grey.shade400),
+                              const SizedBox(height: 12),
+                              Text(
+                                'No leave applications yet',
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        ...state.requests.map((req) => _buildLeaveItem(context, req)),
+                      const SizedBox(height: 60),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_router/shelf_router.dart';
@@ -23,7 +24,11 @@ class EmbeddedMockServer {
         .addHandler(apiServer.router.call);
 
     try {
-      _server = await shelf_io.serve(handler, InternetAddress.loopbackIPv4, defaultPort);
+      _server = await shelf_io.serve(
+        handler,
+        InternetAddress.loopbackIPv4,
+        defaultPort,
+      );
       return _server!.port;
     } catch (_) {
       // If port 8085 is in use, bind to any available port
@@ -41,18 +46,23 @@ class EmbeddedMockServer {
     return (Handler innerHandler) {
       return (Request request) async {
         if (request.method == 'OPTIONS') {
-          return Response.ok('', headers: {
+          return Response.ok(
+            '',
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+              'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization, X-Idempotency-Key, X-Mock-Scenario',
+            },
+          );
+        }
+        final response = await innerHandler(request);
+        return response.change(
+          headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization, X-Idempotency-Key, X-Mock-Scenario',
-          });
-        }
-        final response = await innerHandler(request);
-        return response.change(headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Origin, Content-Type, Authorization, X-Idempotency-Key, X-Mock-Scenario',
-        });
+          },
+        );
       };
     };
   }
@@ -83,7 +93,27 @@ class MockApiServer {
       'reason': 'Viral fever and doctor consultation',
       'status': 'Approved',
       'created_at': '2026-11-09T18:30:00Z',
-    }
+    },
+    {
+      'id': 'LR-003',
+      'employee_id': 'EMP-1049',
+      'leave_type': 'Casual',
+      'start_date': '2026-11-25',
+      'end_date': '2026-11-26',
+      'reason': 'Attending technical conference workshop',
+      'status': 'Pending',
+      'created_at': '2026-11-16T09:15:00Z',
+    },
+    {
+      'id': 'LR-004',
+      'employee_id': 'EMP-1049',
+      'leave_type': 'Casual',
+      'start_date': '2026-10-15',
+      'end_date': '2026-10-16',
+      'reason': 'Personal vacation during critical release sprint',
+      'status': 'Rejected',
+      'created_at': '2026-10-12T14:20:00Z',
+    },
   ];
 
   int _casualLeaveBalance = 8;
@@ -216,7 +246,7 @@ class MockApiServer {
           'radius_meters': 200.0,
           'office_name': 'REBS Tech Center - Ernakulam, Kerala',
           'timezone': 'Asia/Kolkata',
-        }
+        },
       });
     });
 
@@ -224,9 +254,7 @@ class MockApiServer {
       final scenario = _checkScenario(request);
       if (scenario != null) return scenario;
 
-      return _jsonResponse({
-        'records': _attendanceEvents,
-      });
+      return _jsonResponse({'records': _attendanceEvents});
     });
 
     router.post('/attendance/events', (Request request) async {
@@ -236,12 +264,16 @@ class MockApiServer {
       final bodyStr = await request.readAsString();
       final body = jsonDecode(bodyStr) as Map<String, dynamic>;
 
-      final clientEventId = (request.headers['x-idempotency-key'] ??
-          body['client_event_id'] ??
-          '') as String;
+      final clientEventId =
+          (request.headers['x-idempotency-key'] ??
+                  body['client_event_id'] ??
+                  '')
+              as String;
 
       if (clientEventId.isEmpty) {
-        return _jsonResponse({'error': 'Missing client_event_id or X-Idempotency-Key'}, status: 400);
+        return _jsonResponse({
+          'error': 'Missing client_event_id or X-Idempotency-Key',
+        }, status: 400);
       }
 
       // Idempotency check: if already processed, return acknowledged response without creating duplicate
@@ -258,14 +290,18 @@ class MockApiServer {
       }
 
       final type = body['type'] as String?;
-      final date = body['date'] as String? ?? DateTime.now().toIso8601String().substring(0, 10);
+      final date =
+          body['date'] as String? ??
+          DateTime.now().toIso8601String().substring(0, 10);
 
       if (type == 'CHECK_IN') {
-        final alreadyCheckedIn = _attendanceEvents.any((e) => e['date'] == date && e['type'] == 'CHECK_IN');
+        final alreadyCheckedIn = _attendanceEvents.any(
+          (e) => e['date'] == date && e['type'] == 'CHECK_IN',
+        );
         if (alreadyCheckedIn) {
           return _jsonResponse({
             'error': 'Attendance check-in already recorded for date: $date',
-            'code': 'DUPLICATE_CHECK_IN'
+            'code': 'DUPLICATE_CHECK_IN',
           }, status: 409);
         }
       }
@@ -307,9 +343,7 @@ class MockApiServer {
       final scenario = _checkScenario(request);
       if (scenario != null) return scenario;
 
-      return _jsonResponse({
-        'requests': _leaveRequests,
-      });
+      return _jsonResponse({'requests': _leaveRequests});
     });
 
     router.post('/leave/requests', (Request request) async {
@@ -325,11 +359,25 @@ class MockApiServer {
       final reason = (body['reason'] as String?)?.trim() ?? '';
 
       if (reason.replaceAll(RegExp(r'\s+'), '').length < 10) {
-        return _jsonResponse({'error': 'Reason must contain at least 10 non-whitespace characters'}, status: 422);
+        return _jsonResponse({
+          'error': 'Reason must contain at least 10 non-whitespace characters',
+        }, status: 422);
+      }
+
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final reqStart = DateTime(startDate.year, startDate.month, startDate.day);
+      if (reqStart.isBefore(today)) {
+        return _jsonResponse({
+          'error': 'Start date cannot be before the current company date',
+          'code': 'INVALID_START_DATE',
+        }, status: 422);
       }
 
       if (endDate.isBefore(startDate)) {
-        return _jsonResponse({'error': 'End date cannot be before start date'}, status: 422);
+        return _jsonResponse({
+          'error': 'End date cannot be before start date',
+        }, status: 422);
       }
 
       for (final req in _leaveRequests) {
@@ -338,19 +386,23 @@ class MockApiServer {
           final reqEnd = DateTime.parse(req['end_date'] as String);
           if (!startDate.isAfter(reqEnd) && !endDate.isBefore(reqStart)) {
             return _jsonResponse({
-              'error': 'Requested leave dates overlap with an existing ${req['status']} request (${req['start_date']} to ${req['end_date']})',
-              'code': 'LEAVE_OVERLAP'
+              'error':
+                  'Requested leave dates overlap with an existing ${req['status']} request (${req['start_date']} to ${req['end_date']})',
+              'code': 'LEAVE_OVERLAP',
             }, status: 422);
           }
         }
       }
 
       final daysRequested = endDate.difference(startDate).inDays + 1;
-      final available = leaveType == 'Casual' ? _casualLeaveBalance : _sickLeaveBalance;
+      final available = leaveType == 'Casual'
+          ? _casualLeaveBalance
+          : _sickLeaveBalance;
       if (daysRequested > available) {
         return _jsonResponse({
-          'error': 'Requested days ($daysRequested) exceed available $leaveType leave balance ($available)',
-          'code': 'INSUFFICIENT_BALANCE'
+          'error':
+              'Requested days ($daysRequested) exceed available $leaveType leave balance ($available)',
+          'code': 'INSUFFICIENT_BALANCE',
         }, status: 422);
       }
 
@@ -386,22 +438,31 @@ class MockApiServer {
       _casualLeaveBalance = 8;
       _sickLeaveBalance = 5;
       _initializeInitialAttendance();
-      return _jsonResponse({'message': 'Server state reset to initial seed values'});
+      return _jsonResponse({
+        'message': 'Server state reset to initial seed values',
+      });
     });
   }
 
   Response? _checkScenario(Request request) {
-    final scenario = request.headers['x-mock-scenario'] ??
+    final scenario =
+        request.headers['x-mock-scenario'] ??
         request.url.queryParameters['scenario'];
 
     if (scenario == 'error') {
-      return _jsonResponse({'error': 'Simulated 500 Internal Server Error'}, status: 500);
+      return _jsonResponse({
+        'error': 'Simulated 500 Internal Server Error',
+      }, status: 500);
     }
     if (scenario == 'conflict') {
-      return _jsonResponse({'error': 'Simulated 409 Conflict: Attendance already exists'}, status: 409);
+      return _jsonResponse({
+        'error': 'Simulated 409 Conflict: Attendance already exists',
+      }, status: 409);
     }
     if (scenario == 'leave_reject') {
-      return _jsonResponse({'error': 'Simulated 422 Server Rejection: Blackout dates applied'}, status: 422);
+      return _jsonResponse({
+        'error': 'Simulated 422 Server Rejection: Blackout dates applied',
+      }, status: 422);
     }
     return null;
   }

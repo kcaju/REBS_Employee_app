@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import '../domain/leave_models.dart';
 import '../domain/leave_validator.dart';
@@ -7,12 +8,15 @@ import 'leave_remote_data_source.dart';
 class LeaveRepository {
   final LeaveLocalDataSource localDataSource;
   final LeaveRemoteDataSource remoteDataSource;
+  final Connectivity connectivity;
 
   LeaveRepository({
     LeaveLocalDataSource? local,
     LeaveRemoteDataSource? remote,
+    Connectivity? connectivity,
   })  : localDataSource = local ?? LeaveLocalDataSource(),
-        remoteDataSource = remote ?? LeaveRemoteDataSource();
+        remoteDataSource = remote ?? LeaveRemoteDataSource(),
+        connectivity = connectivity ?? Connectivity();
 
   Future<LeaveBalance> getLeaveBalance() async {
     try {
@@ -71,22 +75,31 @@ class LeaveRepository {
       createdAt: DateTime.now(),
     );
 
-    // 3. Remote Submission (Online connectivity required as per assignment)
+    // 3. Connectivity check (Leave submission requires connectivity as per assignment)
+    final connectivityResult = await connectivity.checkConnectivity();
+    if (connectivityResult.contains(ConnectivityResult.none) || connectivityResult.isEmpty) {
+      throw Exception('No network connection. Leave submission requires active connectivity.');
+    }
+
+    // 4. Remote Submission
     try {
       final created = await remoteDataSource.submitLeaveRequest(newRequest);
       await localDataSource.saveSingleRequest(created);
       return created;
     } on DioException catch (dioError) {
-      if (dioError.response?.statusCode == 422) {
+      if (dioError.response?.statusCode == 422 || dioError.response?.statusCode == 400) {
         final serverMessage = dioError.response?.data is Map
-            ? dioError.response?.data['error'] ?? 'Server validation failed'
+            ? dioError.response?.data['error'] ?? dioError.response?.data['message'] ?? 'Server validation failed'
             : 'Server validation error';
         throw Exception(serverMessage);
       } else if (dioError.type == DioExceptionType.connectionError ||
           dioError.type == DioExceptionType.connectionTimeout) {
-        throw Exception('No internet connection. Leave submission requires active connectivity.');
+        throw Exception('No network connection. Leave submission requires active connectivity.');
       } else {
-        throw Exception('Server error: ${dioError.message}');
+        final serverMessage = dioError.response?.data is Map
+            ? dioError.response?.data['error'] ?? dioError.response?.data['message']
+            : null;
+        throw Exception(serverMessage ?? 'Server error: ${dioError.message}');
       }
     }
   }
