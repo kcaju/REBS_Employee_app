@@ -53,7 +53,6 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
             const SizedBox(height: 8),
             Material(
               color: const Color(0xFF24164C),
-              borderRadius: BorderRadius.circular(14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(14),
                 side: const BorderSide(color: Colors.white12),
