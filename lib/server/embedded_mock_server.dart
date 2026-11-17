@@ -73,55 +73,41 @@ class MockApiServer {
 
   final Set<String> _processedIdempotencyKeys = {};
   final List<Map<String, dynamic>> _attendanceEvents = [];
-  final List<Map<String, dynamic>> _leaveRequests = [
-    {
-      'id': 'LR-001',
-      'employee_id': 'EMP-1049',
-      'leave_type': 'Casual',
-      'start_date': '2026-11-01',
-      'end_date': '2026-11-02',
-      'reason': 'Family gathering out of station',
-      'status': 'Approved',
-      'created_at': '2026-10-25T10:00:00Z',
-    },
-    {
-      'id': 'LR-002',
-      'employee_id': 'EMP-1049',
-      'leave_type': 'Sick',
-      'start_date': '2026-11-10',
-      'end_date': '2026-11-10',
-      'reason': 'Viral fever and doctor consultation',
-      'status': 'Approved',
-      'created_at': '2026-11-09T18:30:00Z',
-    },
-    {
-      'id': 'LR-003',
-      'employee_id': 'EMP-1049',
-      'leave_type': 'Casual',
-      'start_date': '2026-11-25',
-      'end_date': '2026-11-26',
-      'reason': 'Attending technical conference workshop',
-      'status': 'Pending',
-      'created_at': '2026-11-16T09:15:00Z',
-    },
-    {
-      'id': 'LR-004',
-      'employee_id': 'EMP-1049',
-      'leave_type': 'Casual',
-      'start_date': '2026-10-15',
-      'end_date': '2026-10-16',
-      'reason': 'Personal vacation during critical release sprint',
-      'status': 'Rejected',
-      'created_at': '2026-10-12T14:20:00Z',
-    },
-  ];
+  final List<Map<String, dynamic>> _leaveRequests = [];
 
   int _casualLeaveBalance = 8;
   int _sickLeaveBalance = 5;
 
   MockApiServer() {
     _initializeInitialAttendance();
+    _initializeInitialLeaveRequests();
     _setupRoutes();
+  }
+
+  void _initializeInitialLeaveRequests() {
+    _leaveRequests.clear();
+    _leaveRequests.addAll([
+      {
+        'id': 'LR-001',
+        'employee_id': 'EMP-1049',
+        'leave_type': 'Casual',
+        'start_date': '2026-11-01',
+        'end_date': '2026-11-02',
+        'reason': 'Family gathering out of station',
+        'status': 'Approved',
+        'created_at': '2026-10-25T10:00:00Z',
+      },
+      {
+        'id': 'LR-002',
+        'employee_id': 'EMP-1049',
+        'leave_type': 'Sick',
+        'start_date': '2026-10-15',
+        'end_date': '2026-10-16',
+        'reason': 'Personal vacation during critical release sprint',
+        'status': 'Rejected',
+        'created_at': '2026-10-12T14:20:00Z',
+      },
+    ]);
   }
 
   void _initializeInitialAttendance() {
@@ -438,6 +424,7 @@ class MockApiServer {
       _casualLeaveBalance = 8;
       _sickLeaveBalance = 5;
       _initializeInitialAttendance();
+      _initializeInitialLeaveRequests();
       return _jsonResponse({
         'message': 'Server state reset to initial seed values',
       });

@@ -31,6 +31,7 @@ class LeaveRepository {
   Future<List<LeaveRequest>> getLeaveRequests({bool forceRefresh = false}) async {
     try {
       final remoteList = await remoteDataSource.fetchLeaveRequests();
+      await localDataSource.clearAll();
       await localDataSource.saveLeaveRequests(remoteList);
       return remoteList;
     } catch (_) {
