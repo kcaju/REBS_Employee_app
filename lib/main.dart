@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'core/theme/app_theme.dart';
 import 'core/database/app_database.dart';
 import 'core/network/api_client.dart';
 import 'core/services/sync_queue_manager.dart';
@@ -91,15 +92,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'REBS Employee Workspace',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          useMaterial3: true,
-          colorSchemeSeed: Colors.indigo,
-          scaffoldBackgroundColor: const Color(0xFFF7F9FC),
-          cardTheme: const CardThemeData(
-            color: Colors.white,
-            surfaceTintColor: Colors.transparent,
-          ),
-        ),
+        theme: AppTheme.darkTheme,
         home: const DashboardScreen(),
       ),
     );

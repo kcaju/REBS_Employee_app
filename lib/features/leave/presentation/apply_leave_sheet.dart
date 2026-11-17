@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../../core/theme/app_theme.dart';
 import '../domain/leave_models.dart';
 import 'leave_bloc.dart';
 
@@ -87,12 +88,16 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
             ? state.balance.casualLeaveRemaining
             : state.balance.sickLeaveRemaining;
 
-        return Padding(
+        return Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF1E133D),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
           padding: EdgeInsets.only(
             left: 20,
             right: 20,
             top: 20,
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 24,
           ),
           child: Form(
             key: _formKey,
@@ -101,30 +106,40 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Header
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Apply for Leave',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close),
+                        icon: const Icon(Icons.close, color: Colors.white70),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
 
                   // Leave Type Selector
-                  const Text('Leave Type', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 6),
+                  const Text('Leave Type', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
+                  const SizedBox(height: 8),
                   SegmentedButton<LeaveType>(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith((states) {
+                        if (states.contains(MaterialState.selected)) {
+                          return AppTheme.purpleDark;
+                        }
+                        return const Color(0xFF281850);
+                      }),
+                      foregroundColor: MaterialStateProperty.all(Colors.white),
+                    ),
                     segments: [
                       ButtonSegment(
                         value: LeaveType.casual,
                         label: Text('Casual (${state.balance.casualLeaveRemaining} left)'),
-                        icon: const Icon(Icons.beach_access),
+                        icon: const Icon(Icons.beach_access_rounded),
                       ),
                       ButtonSegment(
                         value: LeaveType.sick,
@@ -137,7 +152,7 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       setState(() => _selectedType = set.first);
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
                   // Date Pickers
                   Row(
@@ -146,22 +161,23 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Start Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                            const Text('Start Date', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
                             const SizedBox(height: 6),
                             InkWell(
                               onTap: _pickStartDate,
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Ink(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade400),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: const Color(0xFF281850),
+                                  border: Border.all(color: Colors.white24),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(_dateFormat.format(_startDate)),
-                                    const Icon(Icons.calendar_month, size: 20),
+                                    Text(_dateFormat.format(_startDate), style: const TextStyle(color: Colors.white)),
+                                    const Icon(Icons.calendar_month, size: 20, color: AppTheme.purpleLight),
                                   ],
                                 ),
                               ),
@@ -174,22 +190,23 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('End Date', style: TextStyle(fontWeight: FontWeight.w600)),
+                            const Text('End Date', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
                             const SizedBox(height: 6),
                             InkWell(
                               onTap: _pickEndDate,
-                              borderRadius: BorderRadius.circular(8),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Ink(
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.grey.shade400),
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: const Color(0xFF281850),
+                                  border: Border.all(color: Colors.white24),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(_dateFormat.format(_endDate)),
-                                    const Icon(Icons.calendar_month, size: 20),
+                                    Text(_dateFormat.format(_endDate), style: const TextStyle(color: Colors.white)),
+                                    const Icon(Icons.calendar_month, size: 20, color: AppTheme.purpleLight),
                                   ],
                                 ),
                               ),
@@ -199,23 +216,23 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
                   // Requested Days summary banner
                   Container(
-                    padding: const EdgeInsets.all(10),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: BoxDecoration(
-                      color: _requestedDays > available ? Colors.red.shade50 : Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(8),
+                      color: _requestedDays > available ? const Color(0x33EF4444) : const Color(0x338B5CF6),
+                      borderRadius: BorderRadius.circular(10),
                       border: Border.all(
-                        color: _requestedDays > available ? Colors.red.shade300 : Colors.blue.shade200,
+                        color: _requestedDays > available ? Colors.redAccent : AppTheme.purpleLight.withOpacity(0.5),
                       ),
                     ),
                     child: Row(
                       children: [
                         Icon(
                           _requestedDays > available ? Icons.error_outline : Icons.info_outline,
-                          color: _requestedDays > available ? Colors.red.shade700 : Colors.blue.shade700,
+                          color: _requestedDays > available ? Colors.redAccent : AppTheme.cyanAccent,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
@@ -225,24 +242,39 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
-                              color: _requestedDays > available ? Colors.red.shade900 : Colors.blue.shade900,
+                              color: _requestedDays > available ? Colors.red.shade200 : Colors.white,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 18),
 
                   // Reason TextField
-                  const Text('Reason (Min. 10 non-whitespace chars)', style: TextStyle(fontWeight: FontWeight.w600)),
+                  const Text('Reason (Min. 10 non-whitespace chars)', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
                   const SizedBox(height: 6),
                   TextFormField(
                     controller: _reasonController,
                     maxLines: 3,
-                    decoration: const InputDecoration(
+                    style: const TextStyle(color: Colors.white),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFF281850),
                       hintText: 'Describe reason for leave...',
-                      border: OutlineInputBorder(),
+                      hintStyle: const TextStyle(color: AppTheme.textMuted),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white24),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white24),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: AppTheme.purplePrimary, width: 2),
+                      ),
                     ),
                     validator: (val) {
                       final nonSpace = (val ?? '').replaceAll(RegExp(r'\s+'), '');
@@ -252,15 +284,16 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 22),
 
                   // Submit Button
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      backgroundColor: Colors.indigo,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      backgroundColor: AppTheme.purplePrimary,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 4,
                     ),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {

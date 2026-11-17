@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/app_background.dart';
 import '../../attendance/domain/attendance_models.dart';
 import '../../attendance/presentation/attendance_bloc.dart';
 import '../../leave/presentation/leave_bloc.dart';
@@ -73,123 +75,129 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('REBS Workspace', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.indigo,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        actions: [
-          // Manual Sync Now button with indicator
-          BlocBuilder<AttendanceCubit, AttendanceState>(
-            builder: (context, state) {
-              return Stack(
-                alignment: Alignment.center,
-                children: [
-                  IconButton(
-                    icon: state.isSyncing
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : const Icon(Icons.sync),
-                    tooltip: 'Sync Now',
-                    onPressed: state.isSyncing
-                        ? null
-                        : () => context.read<AttendanceCubit>().syncNow(),
-                  ),
-                  if (state.pendingSyncCount > 0 && !state.isSyncing)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: const BoxDecoration(
-                          color: Colors.amber,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Text(
-                          '${state.pendingSyncCount}',
-                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+    return AppBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          foregroundColor: Colors.white,
+          title: const Text('REBS Workspace', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          actions: [
+            // Manual Sync Now button with indicator
+            BlocBuilder<AttendanceCubit, AttendanceState>(
+              builder: (context, state) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: state.isSyncing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(Icons.sync, color: Colors.white),
+                      tooltip: 'Sync Now',
+                      onPressed: state.isSyncing
+                          ? null
+                          : () => context.read<AttendanceCubit>().syncNow(),
+                    ),
+                    if (state.pendingSyncCount > 0 && !state.isSyncing)
+                      Positioned(
+                        top: 8,
+                        right: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: Colors.amber,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${state.pendingSyncCount}',
+                            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black87),
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            },
-          ),
-          // Reviewer Dev Drawer Trigger
-          Builder(
-            builder: (ctx) => IconButton(
-              icon: const Icon(Icons.settings_outlined),
-              tooltip: 'Reviewer Controls',
-              onPressed: () => Scaffold.of(ctx).openEndDrawer(),
-            ),
-          ),
-        ],
-      ),
-      endDrawer: DevSettingsDrawer(
-        onSettingsChanged: () {
-          _loadInitialData();
-        },
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          final dashboardCubit = context.read<DashboardCubit>();
-          final attendanceCubit = context.read<AttendanceCubit>();
-          final leaveCubit = context.read<LeaveCubit>();
-
-          await Future.wait([
-            dashboardCubit.loadDashboard(forceRefresh: true),
-            attendanceCubit.loadAttendanceData(),
-            leaveCubit.loadLeaveData(),
-          ]);
-        },
-        child: MultiBlocListener(
-          listeners: [
-            BlocListener<AttendanceCubit, AttendanceState>(
-              listener: (context, state) {
-                if (state.errorMessage != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.errorMessage!),
-                      backgroundColor: Colors.red.shade700,
-                      duration: const Duration(seconds: 4),
-                    ),
-                  );
-                }
-                if (state.successMessage != null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.successMessage!),
-                      backgroundColor: Colors.green.shade700,
-                      duration: const Duration(seconds: 3),
-                    ),
-                  );
-                }
+                  ],
+                );
               },
             ),
+            // Reviewer Dev Drawer Trigger
+            Builder(
+              builder: (ctx) => IconButton(
+                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                tooltip: 'Reviewer Controls',
+                onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+              ),
+            ),
           ],
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            children: [
-              // 1. Employee Header Card
-              _buildEmployeeHeader(),
-              const SizedBox(height: 16),
+        ),
+        endDrawer: DevSettingsDrawer(
+          onSettingsChanged: () {
+            _loadInitialData();
+          },
+        ),
+        body: RefreshIndicator(
+          color: AppTheme.purplePrimary,
+          onRefresh: () async {
+            final dashboardCubit = context.read<DashboardCubit>();
+            final attendanceCubit = context.read<AttendanceCubit>();
+            final leaveCubit = context.read<LeaveCubit>();
 
-              // 2. Today's Attendance & Action Card
-              _buildTodayAttendanceCard(),
-              const SizedBox(height: 16),
-
-              // 3. Leave Balance Quick Card
-              _buildLeaveBalanceCard(),
-              const SizedBox(height: 16),
-
-              // 4. Latest 5 Attendance Records
-              _buildRecentAttendanceCard(),
-              const SizedBox(height: 24),
+            await Future.wait([
+              dashboardCubit.loadDashboard(forceRefresh: true),
+              attendanceCubit.loadAttendanceData(),
+              leaveCubit.loadLeaveData(),
+            ]);
+          },
+          child: MultiBlocListener(
+            listeners: [
+              BlocListener<AttendanceCubit, AttendanceState>(
+                listener: (context, state) {
+                  if (state.errorMessage != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.errorMessage!),
+                        backgroundColor: Colors.red.shade700,
+                        behavior: SnackBarBehavior.floating,
+                        duration: const Duration(seconds: 4),
+                      ),
+                    );
+                  }
+                  if (state.successMessage != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(state.successMessage!),
+                        backgroundColor: Colors.green.shade700,
+                        behavior: SnackBarBehavior.floating,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+              ),
             ],
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              children: [
+                // 1. Employee Header Section
+                _buildEmployeeHeader(),
+                const SizedBox(height: 18),
+
+                // 2. Attendance Section Title & Main + Stats Boxes
+                _buildAttendanceSection(),
+                const SizedBox(height: 18),
+
+                // 3. Leave Balance Quick Card
+                _buildLeaveBalanceCard(),
+                const SizedBox(height: 18),
+
+                // 4. Latest 5 Attendance Records
+                _buildRecentAttendanceCard(),
+                const SizedBox(height: 32),
+              ],
+            ),
           ),
         ),
       ),
@@ -200,95 +208,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return BlocBuilder<DashboardCubit, DashboardState>(
       builder: (context, state) {
         final profile = state.profile;
-        if (state.isLoading && profile == null) {
-          return const Card(
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          );
-        }
+        final name = profile?.name ?? 'Arjun K C';
 
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.indigo.shade100,
-                  child: Text(
-                    (profile?.name.isNotEmpty ?? false) ? profile!.name[0] : 'E',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.indigo),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        profile?.name ?? 'Arjun K C',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${profile?.id ?? "EMP-1049"} • ${profile?.role ?? "Flutter Developer"}',
-                        style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Icon(Icons.location_on, size: 14, color: Colors.indigo.shade400),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              profile?.officeConfig.officeName ?? 'Ernakulam Hub (200m Geofence)',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // "Hi <Name>" title
+            Text(
+              'Hi $name',
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 0.2,
+              ),
             ),
-          ),
+            const SizedBox(height: 4),
+            Text(
+              '${profile?.id ?? "EMP-1049"} • ${profile?.role ?? "Flutter Developer"}',
+              style: const TextStyle(color: AppTheme.textSecondary, fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+
+            // Search pill capsule matching the uploaded image
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.white.withOpacity(0.12)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: Colors.white.withOpacity(0.6), size: 20),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Search...',
+                    style: TextStyle(color: Colors.white.withOpacity(0.45), fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _buildTodayAttendanceCard() {
+  Widget _buildAttendanceSection() {
     return BlocBuilder<AttendanceCubit, AttendanceState>(
       builder: (context, state) {
+        final now = DateTime.now();
         final timeFormat = DateFormat('hh:mm a');
-
-        Color statusColor;
-        String statusText;
-        IconData statusIcon;
-
-        switch (state.todayStatus) {
-          case TodayAttendanceStatus.checkedIn:
-            statusColor = Colors.green;
-            statusText = 'Checked In';
-            statusIcon = Icons.login_rounded;
-            break;
-          case TodayAttendanceStatus.checkedOut:
-            statusColor = Colors.blueGrey;
-            statusText = 'Checked Out';
-            statusIcon = Icons.logout_rounded;
-            break;
-          case TodayAttendanceStatus.notCheckedIn:
-            statusColor = Colors.orange;
-            statusText = 'Not Checked In';
-            statusIcon = Icons.schedule;
-            break;
-        }
+        final dateFormat = DateFormat('EEE, MMM d');
 
         final checkInStr = state.checkInRecord != null
             ? timeFormat.format(state.checkInRecord!.timestamp)
@@ -297,150 +269,256 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ? timeFormat.format(state.checkOutRecord!.timestamp)
             : '--:--';
 
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        final currentTimeStr = timeFormat.format(now);
+        final currentDateStr = dateFormat.format(now);
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Attendance Section Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "Today's Attendance",
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.12),
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(statusIcon, size: 14, color: statusColor),
-                          const SizedBox(width: 4),
-                          Text(
-                            statusText,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: statusColor,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(height: 24),
-
-                // Timing & Duration row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatCol('Check-In', checkInStr, state.checkInRecord?.syncStatus),
-                    _buildStatCol('Check-Out', checkOutStr, state.checkOutRecord?.syncStatus),
-                    _buildStatCol('Working Hours', _formatDuration(_elapsedDuration), null),
-                  ],
-                ),
-                const SizedBox(height: 20),
-
-                // Action Buttons
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.login),
-                        label: const Text('Check In'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green.shade600,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        // Only enabled if Not Checked In and not currently submitting
-                        onPressed: (state.todayStatus == TodayAttendanceStatus.notCheckedIn && !state.isSubmitting)
-                            ? () {
-                                final profile = context.read<DashboardCubit>().state.profile;
-                                context.read<AttendanceCubit>().checkIn(
-                                      employeeId: profile?.id ?? 'EMP-1049',
-                                      officeLat: profile?.officeConfig.latitude ?? 12.9716,
-                                      officeLng: profile?.officeConfig.longitude ?? 77.5946,
-                                      radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
-                                    );
-                              }
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        icon: const Icon(Icons.logout),
-                        label: const Text('Check Out'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red.shade600,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        // Check out permitted only after check in
-                        onPressed: (state.todayStatus == TodayAttendanceStatus.checkedIn && !state.isSubmitting)
-                            ? () {
-                                final profile = context.read<DashboardCubit>().state.profile;
-                                context.read<AttendanceCubit>().checkOut(
-                                      employeeId: profile?.id ?? 'EMP-1049',
-                                      officeLat: profile?.officeConfig.latitude ?? 12.9716,
-                                      officeLng: profile?.officeConfig.longitude ?? 77.5946,
-                                      radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
-                                    );
-                              }
-                            : null,
-                      ),
-                    ),
-                  ],
-                ),
-
-                if (state.isSubmitting)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                          SizedBox(width: 8),
-                          Text('Verifying location and recording event...', style: TextStyle(fontSize: 12)),
-                        ],
-                      ),
-                    ),
+                const Text(
+                  'Attendance',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
+                ),
+                Builder(
+                  builder: (ctx) => IconButton(
+                    icon: const Icon(Icons.more_horiz_rounded, color: Colors.white70),
+                    tooltip: 'Options',
+                    onPressed: () => Scaffold.of(ctx).openEndDrawer(),
+                  ),
+                ),
               ],
             ),
-          ),
+            const SizedBox(height: 8),
+
+            // Main Attendance Box (Matching uploaded image)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+              decoration: AppTheme.boxDecoration(radius: 24),
+              child: Column(
+                children: [
+                  // Top Time & Date
+                  Text(
+                    currentTimeStr,
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    currentDateStr,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Concentric Glowing Circular Punch Button
+                  _buildCircularPunchButton(state),
+
+                  const SizedBox(height: 22),
+
+                  // Location Indicator at bottom of main box
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.location_on, size: 14, color: AppTheme.purpleLight),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Location: You are in Office reach',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.85),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 14),
+
+            // Secondary Stats Box (Check In, Check Out, Working Hrs)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+              decoration: AppTheme.boxDecoration(radius: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildStatItem(
+                    icon: Icons.history_rounded,
+                    iconColor: AppTheme.cyanAccent,
+                    time: checkInStr,
+                    label: 'Check In',
+                    syncStatus: state.checkInRecord?.syncStatus,
+                  ),
+                  _buildStatItem(
+                    icon: Icons.restore_rounded,
+                    iconColor: AppTheme.amberAccent,
+                    time: checkOutStr,
+                    label: 'Check Out',
+                    syncStatus: state.checkOutRecord?.syncStatus,
+                  ),
+                  _buildStatItem(
+                    icon: Icons.schedule_rounded,
+                    iconColor: AppTheme.blueAccent,
+                    time: _formatDuration(_elapsedDuration),
+                    label: 'Working Hrs',
+                    syncStatus: null,
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  Widget _buildStatCol(String label, String value, SyncStatus? syncStatus) {
+  Widget _buildCircularPunchButton(AttendanceState state) {
+    final isCheckedIn = state.todayStatus == TodayAttendanceStatus.checkedIn;
+    final isCheckedOut = state.todayStatus == TodayAttendanceStatus.checkedOut;
+    final isNotCheckedIn = state.todayStatus == TodayAttendanceStatus.notCheckedIn;
+
+    String buttonLabel = 'PUNCH IN';
+    if (isCheckedIn) buttonLabel = 'PUNCH OUT';
+    if (isCheckedOut) buttonLabel = 'COMPLETED';
+
+    final bool canPress = !state.isSubmitting && !isCheckedOut;
+
+    return GestureDetector(
+      onTap: canPress
+          ? () {
+              final profile = context.read<DashboardCubit>().state.profile;
+              if (isNotCheckedIn) {
+                context.read<AttendanceCubit>().checkIn(
+                      employeeId: profile?.id ?? 'EMP-1049',
+                      officeLat: profile?.officeConfig.latitude ?? 9.9816,
+                      officeLng: profile?.officeConfig.longitude ?? 76.2999,
+                      radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
+                    );
+              } else if (isCheckedIn) {
+                context.read<AttendanceCubit>().checkOut(
+                      employeeId: profile?.id ?? 'EMP-1049',
+                      officeLat: profile?.officeConfig.latitude ?? 9.9816,
+                      officeLng: profile?.officeConfig.longitude ?? 76.2999,
+                      radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
+                    );
+              }
+            }
+          : null,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 175,
+        height: 175,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: AppTheme.purplePrimary.withOpacity(canPress ? 0.45 : 0.15),
+              blurRadius: 30,
+              spreadRadius: 4,
+            ),
+          ],
+          border: Border.all(
+            color: AppTheme.purplePrimary.withOpacity(0.55),
+            width: 5,
+          ),
+        ),
+        padding: const EdgeInsets.all(7),
+        child: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppTheme.purpleDark.withOpacity(0.9),
+              width: 3,
+            ),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: isCheckedOut
+                  ? [const Color(0xFF374151), const Color(0xFF1F2937)]
+                  : [
+                      const Color(0xFF7C3AED),
+                      const Color(0xFF4C1D95),
+                    ],
+            ),
+          ),
+          child: Center(
+            child: state.isSubmitting
+                ? const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                  )
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        isCheckedOut ? Icons.check_circle_outline_rounded : Icons.touch_app_rounded,
+                        size: 42,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        buttonLabel,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required Color iconColor,
+    required String time,
+    required String label,
+    SyncStatus? syncStatus,
+  }) {
     return Column(
       children: [
-        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+        Icon(icon, size: 24, color: iconColor),
+        const SizedBox(height: 8),
+        Text(
+          time,
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            color: AppTheme.textSecondary,
+          ),
+        ),
         if (syncStatus != null) ...[
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           _buildSyncBadge(syncStatus),
         ],
       ],
@@ -455,20 +533,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     switch (status) {
       case SyncStatus.synced:
-        bg = Colors.green.shade50;
-        fg = Colors.green.shade700;
+        bg = const Color(0x3310B981);
+        fg = const Color(0xFF34D399);
         label = 'Synced';
         icon = Icons.check;
         break;
       case SyncStatus.pending:
-        bg = Colors.amber.shade50;
-        fg = Colors.amber.shade800;
-        label = 'Pending Sync';
+        bg = const Color(0x33F59E0B);
+        fg = const Color(0xFFFBBF24);
+        label = 'Pending';
         icon = Icons.hourglass_empty;
         break;
       case SyncStatus.rejected:
-        bg = Colors.red.shade50;
-        fg = Colors.red.shade700;
+        bg = const Color(0x33EF4444);
+        fg = const Color(0xFFF87171);
         label = 'Rejected';
         icon = Icons.close;
         break;
@@ -478,17 +556,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: fg.withOpacity(0.3)),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: fg.withOpacity(0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 10, color: fg),
+          Icon(icon, size: 9, color: fg),
           const SizedBox(width: 2),
           Text(
             label,
-            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: fg),
+            style: TextStyle(fontSize: 8.5, fontWeight: FontWeight.bold, color: fg),
           ),
         ],
       ),
@@ -501,87 +579,103 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final profile = context.read<DashboardCubit>().state.profile;
         final employeeId = profile?.id ?? 'EMP-1049';
 
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Leave Balances',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: AppTheme.boxDecoration(radius: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Leave Balances',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BlocProvider.value(
-                              value: context.read<LeaveCubit>(),
-                              child: LeaveHistoryScreen(employeeId: employeeId),
-                            ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => BlocProvider.value(
+                            value: context.read<LeaveCubit>(),
+                            child: LeaveHistoryScreen(employeeId: employeeId),
                           ),
-                        );
-                      },
-                      child: const Text('Manage & Apply ➔'),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Manage & Apply ➔',
+                      style: TextStyle(color: AppTheme.purpleLight, fontWeight: FontWeight.w600, fontSize: 13),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Casual Leave', style: TextStyle(fontSize: 12, color: Colors.blue)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${state.balance.casualLeaveRemaining} Days',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue.shade900),
-                            ),
-                          ],
-                        ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E143F),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppTheme.cyanAccent.withOpacity(0.25)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text('Casual Leave', style: TextStyle(fontSize: 12, color: AppTheme.cyanAccent)),
+                              Icon(Icons.beach_access_rounded, size: 16, color: AppTheme.cyanAccent),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${state.balance.casualLeaveRemaining} Days',
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.teal.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Sick Leave', style: TextStyle(fontSize: 12, color: Colors.teal)),
-                            const SizedBox(height: 4),
-                            Text(
-                              '${state.balance.sickLeaveRemaining} Days',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.teal.shade900),
-                            ),
-                          ],
-                        ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E143F),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: AppTheme.amberAccent.withOpacity(0.25)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text('Sick Leave', style: TextStyle(fontSize: 12, color: AppTheme.amberAccent)),
+                              Icon(Icons.medical_services_outlined, size: 16, color: AppTheme.amberAccent),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${state.balance.sickLeaveRemaining} Days',
+                            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
@@ -593,103 +687,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context, state) {
         final timeFormat = DateFormat('MMM dd, hh:mm a');
 
-        return Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Recent Attendance (Latest 5)',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    if (state.pendingSyncCount > 0)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.amber.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${state.pendingSyncCount} pending sync',
-                          style: TextStyle(fontSize: 11, color: Colors.amber.shade900, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                if (state.recentRecords.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Center(
-                      child: Text(
-                        'No attendance records found',
-                        style: TextStyle(color: Colors.grey.shade500),
-                      ),
-                    ),
-                  )
-                else
-                  ...state.recentRecords.map((record) {
-                    final isCheckIn = record.type == AttendanceType.checkIn;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: AppTheme.boxDecoration(radius: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Recent Attendance (Latest 5)',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  if (state.pendingSyncCount > 0)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.shade200),
+                        color: const Color(0x33F59E0B),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: Colors.amberAccent.withOpacity(0.5)),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Row(
+                      child: Text(
+                        '${state.pendingSyncCount} pending sync',
+                        style: const TextStyle(fontSize: 10, color: Colors.amberAccent, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (state.recentRecords.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: Text(
+                      'No attendance records found',
+                      style: TextStyle(color: AppTheme.textMuted),
+                    ),
+                  ),
+                )
+              else
+                ...state.recentRecords.map((record) {
+                  final isCheckIn = record.type == AttendanceType.checkIn;
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E143F),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white.withOpacity(0.08)),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundColor: isCheckIn ? const Color(0x3322D3EE) : const Color(0x33FB923C),
+                              child: Icon(
+                                isCheckIn ? Icons.login_rounded : Icons.logout_rounded,
+                                size: 14,
+                                color: isCheckIn ? AppTheme.cyanAccent : AppTheme.amberAccent,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CircleAvatar(
-                                  radius: 14,
-                                  backgroundColor: isCheckIn ? Colors.green.shade100 : Colors.red.shade100,
-                                  child: Icon(
-                                    isCheckIn ? Icons.login : Icons.logout,
-                                    size: 14,
-                                    color: isCheckIn ? Colors.green.shade800 : Colors.red.shade800,
-                                  ),
+                                Text(
+                                  isCheckIn ? 'Check In' : 'Check Out',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        isCheckIn ? 'Check In' : 'Check Out',
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                                      ),
-                                      Text(
-                                        timeFormat.format(record.timestamp),
-                                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
+                                Text(
+                                  timeFormat.format(record.timestamp),
+                                  style: const TextStyle(fontSize: 11, color: AppTheme.textMuted),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          _buildSyncBadge(record.syncStatus),
-                        ],
-                      ),
-                    );
-                  }),
-              ],
-            ),
+                          ],
+                        ),
+                        _buildSyncBadge(record.syncStatus),
+                      ],
+                    ),
+                  );
+                }),
+            ],
           ),
         );
       },
