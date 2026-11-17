@@ -52,22 +52,26 @@ class LocationService {
     double radiusMeters = defaultRadiusMeters,
   }) async {
     // 1. Check if Reviewer simulation is active
-    if (simulateLocation) {
-      final lat = simulateInsideOffice ? officeLat : officeLat + 0.015; // ~1.6km away
-      final lng = simulateInsideOffice ? officeLng : officeLng + 0.015;
-      final distance = Geolocator.distanceBetween(lat, lng, officeLat, officeLng);
-      final isInside = distance <= radiusMeters;
-
-      return LocationResult(
-        latitude: lat,
-        longitude: lng,
-        distanceMeters: distance,
-        isWithinGeofence: isInside,
-        errorMessage: isInside
-            ? null
-            : 'You are ${distance.toStringAsFixed(0)}m away from the office. Check-in is only permitted within ${radiusMeters.toStringAsFixed(0)}m.',
+    if (!simulateLocation) {
+      return LocationResult.failure(
+        message: 'Turn on the simulate location button to check in.',
       );
     }
+
+    final lat = simulateInsideOffice ? officeLat : officeLat + 0.015; // ~1.6km away
+    final lng = simulateInsideOffice ? officeLng : officeLng + 0.015;
+    final distance = Geolocator.distanceBetween(lat, lng, officeLat, officeLng);
+    final isInside = distance <= radiusMeters;
+
+    return LocationResult(
+      latitude: lat,
+      longitude: lng,
+      distanceMeters: distance,
+      isWithinGeofence: isInside,
+      errorMessage: isInside
+          ? null
+          : 'You are ${distance.toStringAsFixed(0)}m away from the office. Check-in is only permitted within ${radiusMeters.toStringAsFixed(0)}m.',
+    );
 
     // 2. Real GPS Hardware & Permission Check
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -96,33 +100,12 @@ class LocationService {
     }
 
     try {
-      Position? position;
-      try {
-        position = await Geolocator.getCurrentPosition(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 10),
-          ),
-        );
-      } catch (_) {
-        // Fallback: If high-accuracy satellite GPS timed out (very common indoors),
-        // try last known position or balanced network/Wi-Fi provider.
-        position = await Geolocator.getLastKnownPosition();
-        if (position == null) {
-          position = await Geolocator.getCurrentPosition(
-            locationSettings: const LocationSettings(
-              accuracy: LocationAccuracy.medium,
-              timeLimit: Duration(seconds: 8),
-            ),
-          );
-        }
-      }
-
-      if (position == null) {
-        return LocationResult.failure(
-          message: 'Unable to acquire GPS location. Please check that GPS is enabled and has clear sky view.',
-        );
-      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
 
       final distance = Geolocator.distanceBetween(
         position.latitude,
