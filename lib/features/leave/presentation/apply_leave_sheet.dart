@@ -20,6 +20,7 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
   late DateTime _startDate;
   late DateTime _endDate;
   final TextEditingController _reasonController = TextEditingController();
+  String? _formValidationError;
 
   final DateFormat _dateFormat = DateFormat('yyyy-MM-dd');
 
@@ -263,6 +264,13 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       fillColor: const Color(0xFF281850),
                       hintText: 'Describe reason for leave...',
                       hintStyle: const TextStyle(color: AppTheme.textMuted),
+                      errorMaxLines: 3,
+                      errorStyle: const TextStyle(
+                        color: Color(0xFFF87171),
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w500,
+                        height: 1.3,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: Colors.white24),
@@ -275,6 +283,14 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: AppTheme.purplePrimary, width: 2),
                       ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 1.5),
+                      ),
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFEF4444), width: 2),
+                      ),
                     ),
                     validator: (val) {
                       final nonSpace = (val ?? '').replaceAll(RegExp(r'\s+'), '');
@@ -284,7 +300,41 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 22),
+                  const SizedBox(height: 18),
+
+                  // In-Form Validation Error Banner
+                  if (_formValidationError != null) ...[
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0x33EF4444),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.redAccent),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _formValidationError!,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11.5,
+                                height: 1.3,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
 
                   // Submit Button
                   ElevatedButton(
@@ -296,26 +346,37 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                       elevation: 4,
                     ),
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        final cubit = context.read<LeaveCubit>();
-                        final employeeId = widget.employeeId;
-                        final type = _selectedType;
-                        final startDate = _startDate;
-                        final endDate = _endDate;
-                        final reason = _reasonController.text.trim();
+                      setState(() => _formValidationError = null);
 
-                        // Close form automatically
-                        Navigator.pop(context);
+                      final isReasonValid = _formKey.currentState!.validate();
+                      if (!isReasonValid) return;
 
-                        // Trigger submission
-                        cubit.applyLeave(
-                          employeeId: employeeId,
-                          type: type,
-                          startDate: startDate,
-                          endDate: endDate,
-                          reason: reason,
-                        );
+                      if (_requestedDays > available) {
+                        final typeLabel = _selectedType == LeaveType.casual ? 'Casual' : 'Sick';
+                        setState(() {
+                          _formValidationError = 'Requested days ($_requestedDays) exceed available $typeLabel balance ($available days).';
+                        });
+                        return;
                       }
+
+                      final cubit = context.read<LeaveCubit>();
+                      final employeeId = widget.employeeId;
+                      final type = _selectedType;
+                      final startDate = _startDate;
+                      final endDate = _endDate;
+                      final reason = _reasonController.text.trim();
+
+                      // Close form automatically
+                      Navigator.pop(context);
+
+                      // Trigger submission
+                      cubit.applyLeave(
+                        employeeId: employeeId,
+                        type: type,
+                        startDate: startDate,
+                        endDate: endDate,
+                        reason: reason,
+                      );
                     },
                     child: const Text('Submit Application', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ),
