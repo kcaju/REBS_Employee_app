@@ -315,31 +315,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
             // Secondary Stats Box (Check In, Check Out, Working Hrs)
             Container(
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
               decoration: AppTheme.boxDecoration(radius: 18),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatItem(
-                    icon: Icons.history_rounded,
-                    iconColor: AppTheme.cyanAccent,
-                    time: checkInStr,
-                    label: 'Check In',
-                    syncStatus: state.checkInRecord?.syncStatus,
+                  Expanded(
+                    child: _buildStatItem(
+                      icon: Icons.history_rounded,
+                      iconColor: AppTheme.cyanAccent,
+                      time: checkInStr,
+                      label: 'Check In',
+                      syncStatus: state.checkInRecord?.syncStatus,
+                    ),
                   ),
-                  _buildStatItem(
-                    icon: Icons.restore_rounded,
-                    iconColor: AppTheme.amberAccent,
-                    time: checkOutStr,
-                    label: 'Check Out',
-                    syncStatus: state.checkOutRecord?.syncStatus,
+                  Container(height: 32, width: 1, color: Colors.white10),
+                  Expanded(
+                    child: _buildStatItem(
+                      icon: Icons.restore_rounded,
+                      iconColor: AppTheme.amberAccent,
+                      time: checkOutStr,
+                      label: 'Check Out',
+                      syncStatus: state.checkOutRecord?.syncStatus,
+                    ),
                   ),
-                  _buildStatItem(
-                    icon: Icons.schedule_rounded,
-                    iconColor: AppTheme.blueAccent,
-                    time: _formatDuration(_elapsedDuration),
-                    label: 'Working Hrs',
-                    syncStatus: null,
+                  Container(height: 32, width: 1, color: Colors.white10),
+                  Expanded(
+                    child: _buildStatItem(
+                      icon: Icons.schedule_rounded,
+                      iconColor: AppTheme.blueAccent,
+                      time: _formatDuration(_elapsedDuration),
+                      label: 'Working Hrs',
+                      syncStatus: null,
+                    ),
                   ),
                 ],
               ),
@@ -361,6 +368,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (isCheckedOut) buttonLabel = 'COMPLETED';
 
     final bool canPress = !state.isSubmitting && !isCheckedOut;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double buttonSize = (screenWidth * 0.32).clamp(110.0, 140.0);
 
     return GestureDetector(
       onTap: canPress
@@ -385,8 +394,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           : null,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        width: 125,
-        height: 125,
+        width: buttonSize,
+        height: buttonSize,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: [
@@ -463,21 +472,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
     SyncStatus? syncStatus,
   }) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, size: 20, color: iconColor),
         const SizedBox(height: 5),
-        Text(
-          time,
-          style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            time,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
           style: const TextStyle(fontSize: 10, color: AppTheme.textSecondary),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         if (syncStatus != null) ...[
           const SizedBox(height: 4),
@@ -607,13 +622,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
-                              Text(
-                                'Casual Leave',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.cyanAccent,
+                              Expanded(
+                                child: Text(
+                                  'Casual Leave',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.cyanAccent,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              SizedBox(width: 4),
                               Icon(
                                 Icons.beach_access_rounded,
                                 size: 16,
@@ -622,12 +641,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            '${state.balance.casualLeaveRemaining} Days',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '${state.balance.casualLeaveRemaining} Days',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],
@@ -651,13 +673,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: const [
-                              Text(
-                                'Sick Leave',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: AppTheme.amberAccent,
+                              Expanded(
+                                child: Text(
+                                  'Sick Leave',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.amberAccent,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              SizedBox(width: 4),
                               Icon(
                                 Icons.medical_services_outlined,
                                 size: 16,
@@ -666,12 +692,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(
-                            '${state.balance.sickLeaveRemaining} Days',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              '${state.balance.sickLeaveRemaining} Days',
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],

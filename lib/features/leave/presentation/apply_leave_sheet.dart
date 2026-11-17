@@ -127,6 +127,7 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                   const Text('Leave Type', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.textSecondary)),
                   const SizedBox(height: 8),
                   SegmentedButton<LeaveType>(
+                    showSelectedIcon: false,
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.resolveWith((states) {
                         if (states.contains(MaterialState.selected)) {
@@ -139,12 +140,18 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                     segments: [
                       ButtonSegment(
                         value: LeaveType.casual,
-                        label: Text('Casual (${state.balance.casualLeaveRemaining} left)'),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Casual (${state.balance.casualLeaveRemaining} left)'),
+                        ),
                         icon: const Icon(Icons.beach_access_rounded),
                       ),
                       ButtonSegment(
                         value: LeaveType.sick,
-                        label: Text('Sick (${state.balance.sickLeaveRemaining} left)'),
+                        label: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('Sick (${state.balance.sickLeaveRemaining} left)'),
+                        ),
                         icon: const Icon(Icons.medical_services_outlined),
                       ),
                     ],
@@ -177,7 +184,14 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(_dateFormat.format(_startDate), style: const TextStyle(color: Colors.white)),
+                                    Expanded(
+                                      child: Text(
+                                        _dateFormat.format(_startDate),
+                                        style: const TextStyle(color: Colors.white),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
                                     const Icon(Icons.calendar_month, size: 20, color: AppTheme.purpleLight),
                                   ],
                                 ),
@@ -206,7 +220,14 @@ class _ApplyLeaveSheetState extends State<ApplyLeaveSheet> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text(_dateFormat.format(_endDate), style: const TextStyle(color: Colors.white)),
+                                    Expanded(
+                                      child: Text(
+                                        _dateFormat.format(_endDate),
+                                        style: const TextStyle(color: Colors.white),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
                                     const Icon(Icons.calendar_month, size: 20, color: AppTheme.purpleLight),
                                   ],
                                 ),

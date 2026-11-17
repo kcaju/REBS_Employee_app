@@ -158,20 +158,27 @@ class LeaveHistoryScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.w600, color: color, fontSize: 13),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.w600, color: color, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              const SizedBox(width: 4),
               Icon(icon, size: 20, color: color),
             ],
           ),
           const SizedBox(height: 12),
-          Text(
-            '$balance Days',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              '$balance Days',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ),
           const SizedBox(height: 4),
@@ -216,20 +223,26 @@ class LeaveHistoryScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    request.leaveType == LeaveType.casual ? Icons.beach_access_rounded : Icons.medical_services_outlined,
-                    size: 18,
-                    color: AppTheme.purpleLight,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '${request.leaveType == LeaveType.casual ? "Casual" : "Sick"} Leave • ${request.daysCount} Day(s)',
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 14),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      request.leaveType == LeaveType.casual ? Icons.beach_access_rounded : Icons.medical_services_outlined,
+                      size: 18,
+                      color: AppTheme.purpleLight,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${request.leaveType == LeaveType.casual ? "Casual" : "Sick"} Leave • ${request.daysCount} Day(s)',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13.5),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
