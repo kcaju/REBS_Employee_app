@@ -476,7 +476,7 @@ class MockApiServer {
     }
     if (scenario == 'conflict') {
       return _jsonResponse({
-        'error': 'Simulated 409 Conflict: Attendance already exists',
+        'error': 'Attendance record already exists for this slot.',
       }, status: 409);
     }
     if (scenario == 'leave_reject') {

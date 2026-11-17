@@ -203,9 +203,8 @@ Follow these step-by-step instructions to experience every feature and validatio
 1. **View Leave Balances**:
    - Scroll down to the **Leave Balances** card on the Dashboard.
    - Notice the 3 color-coded indicators:
-     - **Paid Leave**: Available balance (e.g., 12 days) in Emerald Green.
      - **Sick Leave**: Available balance (e.g., 8 days) in Blue.
-     - **Casual Leave**: Available balance (e.g., 6 days) in Amber.
+     - **Casual Leave**: Available balance (e.g., 5 days) in Amber.
    - Tap **View History & Apply** (or the Leave tile).
 2. **Inspect Initial Leave History**:
    - The Leave History screen opens, displaying exactly 2 initial seeded records:

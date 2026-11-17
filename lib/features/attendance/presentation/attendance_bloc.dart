@@ -281,12 +281,41 @@ class AttendanceCubit extends Cubit<AttendanceState> {
 
   Future<void> syncNow() async {
     emit(state.copyWith(isSyncing: true, clearError: true, clearSuccess: true));
-    await repository.syncPendingEvents();
-    await loadAttendanceData(silent: true);
-    emit(state.copyWith(
-      isSyncing: false,
-      successMessage: 'Records synced successfully!',
-    ));
+    try {
+      final pendingBefore = await repository.localDataSource.getPendingSyncRecords();
+      if (pendingBefore.isNotEmpty) {
+        await repository.syncPendingEvents();
+      } else {
+        // Ping remote server to check sync status / trigger scenario interceptor
+        await repository.remoteDataSource.fetchAttendanceHistory();
+      }
+
+      // Check if any record was rejected during sync
+      final rejected = (await repository.localDataSource.getLatestRecords(limit: 5))
+          .where((r) => r.syncStatus == SyncStatus.rejected)
+          .toList();
+
+      if (rejected.isNotEmpty && rejected.first.rejectionReason != null) {
+        emit(state.copyWith(
+          isSyncing: false,
+          errorMessage: rejected.first.rejectionReason,
+        ));
+        await loadAttendanceData(silent: true);
+        return;
+      }
+
+      await loadAttendanceData(silent: true);
+      emit(state.copyWith(
+        isSyncing: false,
+        successMessage: 'Records synced successfully!',
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isSyncing: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      ));
+      await loadAttendanceData(silent: true);
+    }
   }
 
   void clearMessages() {

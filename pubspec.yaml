@@ -31,30 +31,18 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Icons
-  cupertino_icons: ^1.0.8
 
-  # Architecture & State Management
+  cupertino_icons: ^1.0.8
   flutter_bloc: ^8.1.6
   equatable: ^2.0.5
-
-  # Local Persistence
   sqflite: ^2.3.3+1
   path_provider: ^2.1.4
   path: ^1.9.0
-
-  # Networking & HTTP
   dio: ^5.7.0
   connectivity_plus: ^6.1.0
-
-  # Location & Geofencing
   geolocator: ^13.0.1
-
-  # Utilities
   uuid: ^4.5.1
   intl: ^0.19.0
-
-  # Local Mock Server (Shelf)
   shelf: ^1.4.1
   shelf_router: ^1.1.4
 

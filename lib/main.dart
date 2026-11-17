@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'core/theme/app_theme.dart';
 import 'core/database/app_database.dart';
 import 'core/network/api_client.dart';
@@ -29,7 +30,9 @@ void main() async {
 
   // Start Embedded Local Mock Server automatically (100% Standalone APK Mode)
   try {
-    final serverPort = await EmbeddedMockServer.instance.start(defaultPort: 8085);
+    final serverPort = await EmbeddedMockServer.instance.start(
+      defaultPort: 8085,
+    );
     EmbeddedMockServer.instance.syncInitialState(
       existingLeaves.map((r) => r.toMap()).toList(),
     );

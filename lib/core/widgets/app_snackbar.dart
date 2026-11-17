@@ -36,7 +36,7 @@ class AppSnackBar {
     // Specific network or HTTP code mapping if raw Dio message
     if (msg.contains('DioException') || msg.contains('SocketException')) {
       if (msg.contains('409') || msg.toLowerCase().contains('conflict')) {
-        return 'Attendance already recorded for this session.';
+        return 'Attendance record already exists for this slot.';
       }
       if (msg.contains('500') || msg.toLowerCase().contains('internal server error')) {
         return 'Server error (500). Please try again later.';
