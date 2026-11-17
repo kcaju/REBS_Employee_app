@@ -256,40 +256,7 @@ Follow these step-by-step instructions to experience every feature and validatio
 
 ---
 
-## 5. Reviewer Controls (Dev Drawer Guide)
-
-Access the Dev Drawer at any time by tapping the **Gear Icon (⚙️)** in the AppBar:
-
-```
-┌───────────────────────────────────────────────┐
-│ ⚙️ Reviewer Settings                           │
-├───────────────────────────────────────────────┤
-│ Location Simulation                           │
-│  ◉ Inside Office (<= 200m)     [Lat: 12.9716] │
-│  ○ Outside Office (> 200m)    [Lat: 12.9850] │
-│  ○ Real Device GPS                            │
-├───────────────────────────────────────────────┤
-│ Server Mock Scenario                          │
-│  ◉ Normal (200 / 201 OK)                      │
-│  ○ Slow Response (3s Delay)                   │
-│  ○ 500 Internal Server Error                  │
-│  ○ 409 Duplicate Conflict                     │
-│  ○ 422 Leave Reject                           │
-├───────────────────────────────────────────────┤
-│ Server Base URL                               │
-│  ◉ In-App Mock (127.0.0.1:8085)               │
-│  ○ Android Emulator (10.0.2.2:8085)           │
-│  ○ Desktop / USB (localhost:8085)             │
-│  ○ Custom Wi-Fi IP                            │
-├───────────────────────────────────────────────┤
-│ Storage & Sync Actions                        │
-│  [Drain Sync Queue Now]   [Clear SQLite DB]   │
-└───────────────────────────────────────────────┘
-```
-
----
-
-## 6. Automated Test Suite
+## 5. Automated Test Suite
 
 The project includes unit, domain, and widget test suites covering all critical business rules, validations, and edge cases.
 
@@ -316,7 +283,7 @@ flutter test
 
 ---
 
-## 7. Dependencies & Tools
+## 6. Dependencies & Tools
 
 - **Flutter SDK**: `^3.24.0` (Dart `^3.5.0`)
 - **State Management**: `flutter_bloc: ^8.1.6`, `bloc: ^8.1.4`
