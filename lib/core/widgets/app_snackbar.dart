@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
+import '../network/api_client.dart';
 
 class AppSnackBar {
+  static String? _getActiveScenarioTag() {
+    final scenario = ApiConfig.activeScenario;
+    if (scenario == 'normal' || scenario.isEmpty) return null;
+    switch (scenario) {
+      case 'slow':
+        return 'SCENARIO: SLOW TIMEOUT';
+      case 'error':
+        return 'SCENARIO: 500 SERVER ERROR';
+      case 'conflict':
+        return 'SCENARIO: 409 DUPLICATE CONFLICT';
+      case 'leave_reject':
+        return 'SCENARIO: 422 LEAVE REJECT';
+      default:
+        return 'SCENARIO: ${scenario.toUpperCase()}';
+    }
+  }
+
   static String cleanErrorMessage(dynamic error) {
     if (error == null) return 'An unexpected error occurred.';
     String msg = error.toString().trim();
@@ -39,6 +57,7 @@ class AppSnackBar {
   }
 
   static void showSuccess(BuildContext context, String message) {
+    final scenarioTag = _getActiveScenarioTag();
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -53,8 +72,10 @@ class AppSnackBar {
         ),
         duration: const Duration(seconds: 3),
         content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              margin: const EdgeInsets.only(top: 2),
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
                 color: Color(0x3310B981),
@@ -64,14 +85,40 @@ class AppSnackBar {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 11.5,
-                  height: 1.3,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (scenarioTag != null) ...[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0x33F59E0B),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.amberAccent.withOpacity(0.5)),
+                      ),
+                      child: Text(
+                        scenarioTag,
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amberAccent,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                  Text(
+                    message,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11.5,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -81,6 +128,7 @@ class AppSnackBar {
   }
 
   static void showError(BuildContext context, dynamic error) {
+    final scenarioTag = _getActiveScenarioTag();
     final cleanReason = cleanErrorMessage(error);
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -96,8 +144,10 @@ class AppSnackBar {
         ),
         duration: const Duration(seconds: 4),
         content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              margin: const EdgeInsets.only(top: 2),
               padding: const EdgeInsets.all(4),
               decoration: const BoxDecoration(
                 color: Color(0x33EF4444),
@@ -107,14 +157,40 @@ class AppSnackBar {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                cleanReason,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 11.5,
-                  height: 1.3,
-                ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (scenarioTag != null) ...[
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: const Color(0x33F59E0B),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.amberAccent.withOpacity(0.5)),
+                      ),
+                      child: Text(
+                        scenarioTag,
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amberAccent,
+                          letterSpacing: 0.3,
+                        ),
+                      ),
+                    ),
+                  ],
+                  Text(
+                    cleanReason,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11.5,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
