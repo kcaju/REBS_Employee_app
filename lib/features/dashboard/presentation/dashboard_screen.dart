@@ -765,46 +765,52 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 14,
-                              backgroundColor: isCheckIn
-                                  ? const Color(0x3322D3EE)
-                                  : const Color(0x33FB923C),
-                              child: Icon(
-                                isCheckIn
-                                    ? Icons.login_rounded
-                                    : Icons.logout_rounded,
-                                size: 14,
-                                color: isCheckIn
-                                    ? AppTheme.cyanAccent
-                                    : AppTheme.amberAccent,
+                        Expanded(
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 14,
+                                backgroundColor: isCheckIn
+                                    ? const Color(0x3322D3EE)
+                                    : const Color(0x33FB923C),
+                                child: Icon(
+                                  isCheckIn
+                                      ? Icons.login_rounded
+                                      : Icons.logout_rounded,
+                                  size: 14,
+                                  color: isCheckIn
+                                      ? AppTheme.cyanAccent
+                                      : AppTheme.amberAccent,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  isCheckIn ? 'Check In' : 'Check Out',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 13,
-                                    color: Colors.white,
-                                  ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isCheckIn ? 'Check In' : 'Check Out',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      timeFormat.format(record.timestamp),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        color: AppTheme.textMuted,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  timeFormat.format(record.timestamp),
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: AppTheme.textMuted,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         _buildSyncBadge(record.syncStatus),
                       ],
                     ),
