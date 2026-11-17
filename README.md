@@ -134,10 +134,3 @@ flutter test
 6. **Widget test covering 'Pending Sync' badge on Dashboard** (`test/widget_test.dart`)
 
 ---
-
-## 6. Assumptions, Trade-offs & Limitations
-
-- **Single Preconfigured Employee**: As requested in Section 1, authentication/login is out of scope; employee `EMP-1049` (Alex Morgan) is preconfigured.
-- **Calendar Day Leave Calculations**: As requested in Section 4, weekends and holidays count as calendar days for leave duration.
-- **Background Terminated Execution**: In accordance with Section 3, background execution while the app process is terminated was excluded to focus effort on SQLite persistence, FIFO queue handling, and idempotency guarantees.
-- **Time Spent**: ~7.5 hours total (Architecture & Mock server: 1h, Database & Models: 1h, Sync Engine: 1.5h, Attendance & Geofencing: 1h, Dashboard & Leave UI: 1.5h, Testing & Documentation: 1.5h).

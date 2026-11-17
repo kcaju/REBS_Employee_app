@@ -14,7 +14,7 @@ class AppBackground extends StatelessWidget {
           child: Image.asset(
             'assets/bg.png',
             fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => Container(
+            errorBuilder: (context, error, stackTrace) => Container(
               color: const Color(0xFF150D2A),
             ),
           ),

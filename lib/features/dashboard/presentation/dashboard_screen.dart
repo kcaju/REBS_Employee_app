@@ -260,6 +260,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final currentTimeStr = timeFormat.format(now);
         final currentDateStr = dateFormat.format(now);
 
+        String statusText = 'Not Checked In';
+        Color statusColor = AppTheme.amberAccent;
+        IconData statusIcon = Icons.schedule_rounded;
+
+        switch (state.todayStatus) {
+          case TodayAttendanceStatus.checkedIn:
+            statusColor = const Color(0xFF34D399);
+            statusText = 'Checked In';
+            statusIcon = Icons.login_rounded;
+            break;
+          case TodayAttendanceStatus.checkedOut:
+            statusColor = AppTheme.blueAccent;
+            statusText = 'Checked Out';
+            statusIcon = Icons.check_circle_outline_rounded;
+            break;
+          case TodayAttendanceStatus.notCheckedIn:
+            statusColor = AppTheme.amberAccent;
+            statusText = 'Not Checked In';
+            statusIcon = Icons.schedule_rounded;
+            break;
+        }
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -304,7 +326,36 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: statusColor.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: statusColor.withOpacity(0.35),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(statusIcon, size: 12, color: statusColor),
+                        const SizedBox(width: 4),
+                        Text(
+                          statusText,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: statusColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
 
                   // Concentric Glowing Circular Punch Button (compact size)
                   _buildCircularPunchButton(state),
@@ -496,7 +547,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         if (syncStatus != null) ...[
           const SizedBox(height: 4),
-          _buildSyncBadge(syncStatus),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: _buildSyncBadge(syncStatus),
+          ),
         ],
       ],
     );
@@ -518,7 +572,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case SyncStatus.pending:
         bg = const Color(0x33F59E0B);
         fg = const Color(0xFFFBBF24);
-        label = 'Pending';
+        label = 'Pending Sync';
         icon = Icons.hourglass_empty;
         break;
       case SyncStatus.rejected:
