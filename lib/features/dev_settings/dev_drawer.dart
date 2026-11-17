@@ -103,6 +103,7 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               value: ApiConfig.activeScenario,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -110,11 +111,26 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
               items: const [
-                DropdownMenuItem(value: 'normal', child: Text('Normal (200 / 201 OK)')),
-                DropdownMenuItem(value: 'slow', child: Text('Slow Response / Timeout')),
-                DropdownMenuItem(value: 'error', child: Text('500 Internal Server Error')),
-                DropdownMenuItem(value: 'conflict', child: Text('409 Conflict (Duplicate Attendance)')),
-                DropdownMenuItem(value: 'leave_reject', child: Text('422 Leave Validation Reject')),
+                DropdownMenuItem(
+                  value: 'normal',
+                  child: Text('Normal (200 / 201 OK)', overflow: TextOverflow.ellipsis),
+                ),
+                DropdownMenuItem(
+                  value: 'slow',
+                  child: Text('Slow Response / Timeout', overflow: TextOverflow.ellipsis),
+                ),
+                DropdownMenuItem(
+                  value: 'error',
+                  child: Text('500 Server Error', overflow: TextOverflow.ellipsis),
+                ),
+                DropdownMenuItem(
+                  value: 'conflict',
+                  child: Text('409 Duplicate Conflict', overflow: TextOverflow.ellipsis),
+                ),
+                DropdownMenuItem(
+                  value: 'leave_reject',
+                  child: Text('422 Leave Reject', overflow: TextOverflow.ellipsis),
+                ),
               ],
               onChanged: (val) {
                 if (val != null) {
