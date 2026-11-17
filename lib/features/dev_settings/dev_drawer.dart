@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/network/api_client.dart';
 import '../../core/services/location_service.dart';
+import '../../server/embedded_mock_server.dart';
 import '../attendance/presentation/attendance_bloc.dart';
 
 class DevSettingsDrawer extends StatefulWidget {
@@ -14,14 +15,6 @@ class DevSettingsDrawer extends StatefulWidget {
 }
 
 class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
-  final TextEditingController _urlController = TextEditingController(text: ApiConfig.activeBaseUrl);
-
-  @override
-  void dispose() {
-    _urlController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -59,7 +52,7 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
               title: const Text('Simulate Location'),
               subtitle: Text(LocationService.simulateLocation
                   ? 'Simulated coordinates active'
-                  : 'Using real device GPS'),
+                  : 'Simulation is OFF'),
               value: LocationService.simulateLocation,
               onChanged: (val) {
                 setState(() => LocationService.simulateLocation = val);
@@ -144,9 +137,9 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
 
             const Divider(height: 24),
 
-            // 3. API Host Address
+            // 3. In-App Backend Status
             Text(
-              'API BASE URL',
+              'BACKEND STATUS',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -155,62 +148,40 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
               ),
             ),
             const SizedBox(height: 8),
-            TextField(
-              controller: _urlController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'e.g. http://10.0.2.2:8080',
-                labelText: 'Server URL',
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.green.shade300),
               ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              children: [
-                ActionChip(
-                  avatar: const Icon(Icons.phone_android, size: 16, color: Colors.green),
-                  label: const Text('In-App Standalone (127.0.0.1)'),
-                  onPressed: () {
-                    _urlController.text = 'http://127.0.0.1:8085';
-                  },
-                ),
-                ActionChip(
-                  label: const Text('USB (localhost:8085)'),
-                  onPressed: () {
-                    _urlController.text = 'http://localhost:8085';
-                  },
-                ),
-                ActionChip(
-                  label: const Text('Wi-Fi (192.168.1.100:8085)'),
-                  onPressed: () {
-                    _urlController.text = 'http://192.168.1.100:8085';
-                  },
-                ),
-                ActionChip(
-                  label: const Text('Emulator (10.0.2.2:8085)'),
-                  onPressed: () {
-                    _urlController.text = 'http://10.0.2.2:8085';
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.save),
-              label: const Text('Save Base URL'),
-              onPressed: () {
-                ApiClient().updateBaseUrl(_urlController.text.trim());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Updated Base URL to: ${_urlController.text.trim()}')),
-                );
-                widget.onSettingsChanged();
-              },
+              child: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 22),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'In-App Mock Server Active',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.green),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Running on internal loopback (127.0.0.1:${EmbeddedMockServer.instance.port})',
+                          style: TextStyle(fontSize: 11, color: Colors.green.shade900),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             const Divider(height: 24),
 
-            // 4. Testing & Reset
+            // 4. Testing & Session Reset
             Text(
               'TESTING & SESSION RESET',
               style: TextStyle(
@@ -246,7 +217,7 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                 border: Border.all(color: Colors.indigo.shade200),
               ),
               child: const Text(
-                'Tip for Reviewers:\n• Run mock server: dart run bin/mock_server.dart\n• If running on physical Android device: run `adb reverse tcp:8080 tcp:8080` and use `http://localhost:8080`.',
+                'Tip for Reviewers:\n• The app runs 100% standalone using its built-in HTTP server.\n• Use "Server Mock Scenarios" above to test error and conflict handling.\n• Use "Reset Today\'s Session" to test Check-In / Check-Out again.',
                 style: TextStyle(fontSize: 12, color: Colors.indigo),
               ),
             ),
