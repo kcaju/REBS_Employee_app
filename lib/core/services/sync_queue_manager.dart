@@ -48,12 +48,32 @@ class SyncQueueManager {
   }
 
   /// Processes pending attendance events in strict FIFO order (timestamp ASC)
-  Future<int> processQueue() async {
+  Future<int> processQueue({bool force = false}) async {
     if (_isProcessing) return 0;
     _isProcessing = true;
 
     try {
+      // 1. Check physical device connectivity (Airplane mode detection)
+      if (!force) {
+        final connectivityResults = await connectivity.checkConnectivity();
+        final hasConnection = connectivityResults.any((r) => r != ConnectivityResult.none);
+        if (!hasConnection) {
+          final pendingRecords = await localDataSource.getPendingSyncRecords();
+          _notify(
+            isSyncing: false,
+            pendingCount: pendingRecords.length,
+            message: 'Device is offline. Saved locally to sync queue.',
+          );
+          return 0;
+        }
+      }
+
       final pendingRecords = await localDataSource.getPendingSyncRecords();
+      if (pendingRecords.isEmpty) {
+        _notify(isSyncing: false, pendingCount: 0);
+        return 0;
+      }
+
       _notify(isSyncing: true, pendingCount: pendingRecords.length, message: 'Syncing pending records...');
 
       int syncedCount = 0;

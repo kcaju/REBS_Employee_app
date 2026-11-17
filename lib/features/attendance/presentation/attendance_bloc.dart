@@ -194,16 +194,18 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         date: todayDate,
       );
 
+      final session = await repository.getTodayAttendanceSession(todayDate);
       final recent = await repository.getLatestRecords(limit: 5);
       final pending = await repository.localDataSource.getPendingSyncRecords();
+      final currentRecord = session['checkIn'] ?? record;
 
       emit(state.copyWith(
         isSubmitting: false,
         todayStatus: TodayAttendanceStatus.checkedIn,
-        checkInRecord: record,
+        checkInRecord: currentRecord,
         recentRecords: recent,
         pendingSyncCount: pending.length,
-        successMessage: 'Checked in successfully! (${record.syncStatus == SyncStatus.synced ? "Synced ✓" : "Pending Sync ⏳"})',
+        successMessage: 'Checked in successfully! (${currentRecord.syncStatus == SyncStatus.synced ? "Synced ✓" : "Pending Sync ⏳"})',
         lastDistanceMeters: locResult.distanceMeters,
       ));
     } catch (e) {
@@ -256,16 +258,18 @@ class AttendanceCubit extends Cubit<AttendanceState> {
         date: todayDate,
       );
 
+      final session = await repository.getTodayAttendanceSession(todayDate);
       final recent = await repository.getLatestRecords(limit: 5);
       final pending = await repository.localDataSource.getPendingSyncRecords();
+      final currentRecord = session['checkOut'] ?? record;
 
       emit(state.copyWith(
         isSubmitting: false,
         todayStatus: TodayAttendanceStatus.checkedOut,
-        checkOutRecord: record,
+        checkOutRecord: currentRecord,
         recentRecords: recent,
         pendingSyncCount: pending.length,
-        successMessage: 'Checked out successfully! (${record.syncStatus == SyncStatus.synced ? "Synced ✓" : "Pending Sync ⏳"})',
+        successMessage: 'Checked out successfully! (${currentRecord.syncStatus == SyncStatus.synced ? "Synced ✓" : "Pending Sync ⏳"})',
         lastDistanceMeters: locResult.distanceMeters,
       ));
     } catch (e) {

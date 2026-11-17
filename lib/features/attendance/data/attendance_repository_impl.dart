@@ -98,7 +98,7 @@ class AttendanceRepository {
   }
 
   Future<int> syncPendingEvents() async {
-    return await syncQueueManager.processQueue();
+    return await syncQueueManager.processQueue(force: true);
   }
 
   Future<void> resetTodaySession(String date) async {

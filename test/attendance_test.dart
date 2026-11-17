@@ -52,6 +52,8 @@ void main() {
 
     when(() => mockConnectivity.onConnectivityChanged)
         .thenAnswer((_) => Stream.value([ConnectivityResult.wifi]));
+    when(() => mockConnectivity.checkConnectivity())
+        .thenAnswer((_) async => [ConnectivityResult.wifi]);
 
     testSyncManager = SyncQueueManager(
       local: localDataSource,
