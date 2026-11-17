@@ -44,16 +44,22 @@ class LeaveRequest extends Equatable {
 
   factory LeaveRequest.fromMap(Map<String, dynamic> map) {
     return LeaveRequest(
-      id: map['id'] as String,
-      employeeId: map['employee_id'] as String,
-      leaveType: (map['leave_type'] as String).toLowerCase() == 'casual'
+      id: map['id']?.toString() ?? '',
+      employeeId: map['employee_id']?.toString() ?? 'EMP-1049',
+      leaveType: (map['leave_type']?.toString().toLowerCase() ?? 'casual') == 'casual'
           ? LeaveType.casual
           : LeaveType.sick,
-      startDate: DateTime.parse(map['start_date'] as String),
-      endDate: DateTime.parse(map['end_date'] as String),
-      reason: map['reason'] as String,
-      status: _parseStatus(map['status'] as String),
-      createdAt: DateTime.parse(map['created_at'] as String),
+      startDate: map['start_date'] != null
+          ? DateTime.tryParse(map['start_date'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      endDate: map['end_date'] != null
+          ? DateTime.tryParse(map['end_date'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      reason: map['reason']?.toString() ?? '',
+      status: _parseStatus(map['status']?.toString() ?? 'Pending'),
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 

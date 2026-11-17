@@ -57,13 +57,14 @@ class AttendanceState extends Equatable {
     double? lastDistanceMeters,
     bool clearError = false,
     bool clearSuccess = false,
+    bool clearTodaySession = false,
   }) {
     return AttendanceState(
       isLoading: isLoading ?? this.isLoading,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       todayStatus: todayStatus ?? this.todayStatus,
-      checkInRecord: checkInRecord ?? this.checkInRecord,
-      checkOutRecord: checkOutRecord ?? this.checkOutRecord,
+      checkInRecord: clearTodaySession ? null : (checkInRecord ?? this.checkInRecord),
+      checkOutRecord: clearTodaySession ? null : (checkOutRecord ?? this.checkOutRecord),
       recentRecords: recentRecords ?? this.recentRecords,
       pendingSyncCount: pendingSyncCount ?? this.pendingSyncCount,
       isSyncing: isSyncing ?? this.isSyncing,
@@ -278,6 +279,19 @@ class AttendanceCubit extends Cubit<AttendanceState> {
   Future<void> syncNow() async {
     emit(state.copyWith(isSyncing: true, clearError: true));
     await repository.syncPendingEvents();
+    await loadAttendanceData(silent: true);
+  }
+
+  Future<void> resetTodaySession() async {
+    final todayDate = _getTodayDate();
+    await repository.resetTodaySession(todayDate);
+    emit(state.copyWith(
+      todayStatus: TodayAttendanceStatus.notCheckedIn,
+      clearTodaySession: true,
+      clearSuccess: true,
+      clearError: true,
+      successMessage: "Today's attendance session has been reset. You can check in again!",
+    ));
     await loadAttendanceData(silent: true);
   }
 

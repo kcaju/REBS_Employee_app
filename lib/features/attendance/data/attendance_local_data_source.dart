@@ -75,6 +75,15 @@ class AttendanceLocalDataSource {
     return maps.map((m) => AttendanceRecord.fromMap(m)).toList();
   }
 
+  Future<void> deleteRecordsForDate(String date) async {
+    final db = await appDatabase.database;
+    await db.delete(
+      'attendance_records',
+      where: 'date = ?',
+      whereArgs: [date],
+    );
+  }
+
   Future<void> clearAll() async {
     final db = await appDatabase.database;
     await db.delete('attendance_records');

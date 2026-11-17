@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/network/api_client.dart';
 import '../../core/services/location_service.dart';
+import '../attendance/presentation/attendance_bloc.dart';
 
 class DevSettingsDrawer extends StatefulWidget {
   final VoidCallback onSettingsChanged;
@@ -203,6 +205,35 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                   SnackBar(content: Text('Updated Base URL to: ${_urlController.text.trim()}')),
                 );
                 widget.onSettingsChanged();
+              },
+            ),
+
+            const Divider(height: 24),
+
+            // 4. Testing & Reset
+            Text(
+              'TESTING & SESSION RESET',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade600,
+                letterSpacing: 1.1,
+              ),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.deepOrange,
+                side: const BorderSide(color: Colors.deepOrange),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              icon: const Icon(Icons.restart_alt),
+              label: const Text("Reset Today's Session"),
+              onPressed: () async {
+                await context.read<AttendanceCubit>().resetTodaySession();
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
               },
             ),
 

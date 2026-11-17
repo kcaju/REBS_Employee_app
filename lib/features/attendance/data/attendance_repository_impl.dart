@@ -100,4 +100,11 @@ class AttendanceRepository {
   Future<int> syncPendingEvents() async {
     return await syncQueueManager.processQueue();
   }
+
+  Future<void> resetTodaySession(String date) async {
+    await localDataSource.deleteRecordsForDate(date);
+    try {
+      await remoteDataSource.apiClient.dio.post('/debug/reset');
+    } catch (_) {}
+  }
 }

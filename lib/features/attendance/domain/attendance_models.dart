@@ -77,20 +77,26 @@ class AttendanceRecord extends Equatable {
 
   factory AttendanceRecord.fromMap(Map<String, dynamic> map) {
     return AttendanceRecord(
-      id: map['id'] as String,
-      clientEventId: map['client_event_id'] as String,
-      employeeId: map['employee_id'] as String,
-      date: map['date'] as String,
+      id: map['id']?.toString() ?? '',
+      clientEventId: map['client_event_id']?.toString() ?? '',
+      employeeId: map['employee_id']?.toString() ?? 'EMP-1049',
+      date: map['date']?.toString() ?? '',
       type: map['type'] == 'CHECK_IN' ? AttendanceType.checkIn : AttendanceType.checkOut,
-      timestamp: DateTime.parse(map['timestamp'] as String),
-      latitude: (map['latitude'] as num).toDouble(),
-      longitude: (map['longitude'] as num).toDouble(),
+      timestamp: map['timestamp'] != null
+          ? DateTime.tryParse(map['timestamp'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      latitude: (map['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (map['longitude'] as num?)?.toDouble() ?? 0.0,
       syncStatus: SyncStatus.values.firstWhere(
         (s) => s.name == map['sync_status'],
-        orElse: () => SyncStatus.pending,
+        orElse: () => SyncStatus.synced,
       ),
       rejectionReason: map['rejection_reason'] as String?,
-      createdAt: DateTime.parse(map['created_at'] as String),
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : (map['timestamp'] != null
+              ? DateTime.tryParse(map['timestamp'].toString()) ?? DateTime.now()
+              : DateTime.now()),
     );
   }
 

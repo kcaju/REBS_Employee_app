@@ -279,6 +279,8 @@ class MockApiServer {
         'timestamp': body['timestamp'] ?? DateTime.now().toIso8601String(),
         'latitude': body['latitude'],
         'longitude': body['longitude'],
+        'sync_status': 'synced',
+        'created_at': DateTime.now().toIso8601String(),
       };
 
       _processedIdempotencyKeys.add(clientEventId);
