@@ -230,12 +230,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        profile?.name ?? 'Alex Morgan',
+                        profile?.name ?? 'Arjun K C',
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${profile?.id ?? "EMP-1049"} • ${profile?.department ?? "Engineering"}',
+                        '${profile?.id ?? "EMP-1049"} • ${profile?.role ?? "Flutter Developer"}',
                         style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
                       ),
                       const SizedBox(height: 2),
@@ -245,7 +245,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           const SizedBox(width: 4),
                           Expanded(
                             child: Text(
-                              profile?.officeConfig.officeName ?? 'Bengaluru HQ (200m Geofence)',
+                              profile?.officeConfig.officeName ?? 'Ernakulam Hub (200m Geofence)',
                               style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                               overflow: TextOverflow.ellipsis,
                             ),

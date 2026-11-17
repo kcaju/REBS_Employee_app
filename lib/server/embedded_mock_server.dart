@@ -103,8 +103,8 @@ class MockApiServer {
         'date': '2026-11-12',
         'type': 'CHECK_IN',
         'timestamp': '2026-11-12T09:05:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_2',
@@ -113,8 +113,8 @@ class MockApiServer {
         'date': '2026-11-12',
         'type': 'CHECK_OUT',
         'timestamp': '2026-11-12T18:15:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_3',
@@ -123,8 +123,8 @@ class MockApiServer {
         'date': '2026-11-13',
         'type': 'CHECK_IN',
         'timestamp': '2026-11-13T09:12:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_4',
@@ -133,8 +133,8 @@ class MockApiServer {
         'date': '2026-11-13',
         'type': 'CHECK_OUT',
         'timestamp': '2026-11-13T17:45:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_5',
@@ -143,8 +143,8 @@ class MockApiServer {
         'date': '2026-11-14',
         'type': 'CHECK_IN',
         'timestamp': '2026-11-14T08:55:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_6',
@@ -153,8 +153,8 @@ class MockApiServer {
         'date': '2026-11-14',
         'type': 'CHECK_OUT',
         'timestamp': '2026-11-14T18:30:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_7',
@@ -163,8 +163,8 @@ class MockApiServer {
         'date': '2026-11-15',
         'type': 'CHECK_IN',
         'timestamp': '2026-11-15T09:00:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_8',
@@ -173,8 +173,8 @@ class MockApiServer {
         'date': '2026-11-15',
         'type': 'CHECK_OUT',
         'timestamp': '2026-11-15T18:00:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_9',
@@ -183,8 +183,8 @@ class MockApiServer {
         'date': '2026-11-16',
         'type': 'CHECK_IN',
         'timestamp': '2026-11-16T09:10:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
       {
         'id': 'att_10',
@@ -193,8 +193,8 @@ class MockApiServer {
         'date': '2026-11-16',
         'type': 'CHECK_OUT',
         'timestamp': '2026-11-16T18:05:00Z',
-        'latitude': 12.9716,
-        'longitude': 77.5946,
+        'latitude': 9.9816,
+        'longitude': 76.2999,
       },
     ]);
   }
@@ -206,15 +206,15 @@ class MockApiServer {
 
       return _jsonResponse({
         'id': 'EMP-1049',
-        'name': 'Alex Morgan',
-        'email': 'alex.morgan@rebs.io',
+        'name': 'Arjun K C',
+        'email': 'arjun.kc@rebs.io',
         'department': 'Mobile Engineering',
-        'role': 'Senior Flutter Engineer',
+        'role': 'Flutter Developer',
         'office_config': {
-          'latitude': 12.9716,
-          'longitude': 77.5946,
+          'latitude': 9.9816,
+          'longitude': 76.2999,
           'radius_meters': 200.0,
-          'office_name': 'REBS Tech Hub - Bengaluru',
+          'office_name': 'REBS Tech Center - Ernakulam, Kerala',
           'timezone': 'Asia/Kolkata',
         }
       });

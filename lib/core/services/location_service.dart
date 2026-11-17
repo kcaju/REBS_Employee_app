@@ -43,9 +43,9 @@ class LocationService {
   static bool simulateInsideOffice =
       true; // True = within 200m; False = 1200m away
 
-  // Default office location: Bengaluru Tech Hub
-  static const double defaultOfficeLat = 12.9716;
-  static const double defaultOfficeLng = 77.5946;
+  // Default office location: Ernakulam, Kerala
+  static const double defaultOfficeLat = 9.9816;
+  static const double defaultOfficeLng = 76.2999;
   static const double defaultRadiusMeters = 200.0;
 
   Future<LocationResult> getCurrentLocationAndValidate({

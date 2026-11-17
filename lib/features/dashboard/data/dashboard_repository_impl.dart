@@ -27,17 +27,17 @@ class DashboardRepository {
       // 3. Fallback default preconfigured employee
       return const EmployeeProfile(
         id: 'EMP-1049',
-        name: 'Alex Morgan',
-        email: 'alex.morgan@rebs.io',
+        name: 'Arjun K C',
+        email: 'arjun.kc@rebs.io',
         department: 'Mobile Engineering',
-        role: 'Senior Flutter Engineer',
+        role: 'Flutter Developer',
         casualLeaveRemaining: 8,
         sickLeaveRemaining: 5,
         officeConfig: OfficeConfig(
-          latitude: 12.9716,
-          longitude: 77.5946,
+          latitude: 9.9816,
+          longitude: 76.2999,
           radiusMeters: 200.0,
-          officeName: 'REBS Tech Hub - Bengaluru',
+          officeName: 'REBS Tech Center - Ernakulam, Kerala',
           timezone: 'Asia/Kolkata',
         ),
       );

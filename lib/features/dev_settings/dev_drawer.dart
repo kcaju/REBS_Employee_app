@@ -63,7 +63,7 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
               RadioListTile<bool>(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Inside Office (<= 200m)'),
-                subtitle: const Text('Lat: 12.9716, Lng: 77.5946 (0m away)'),
+                subtitle: const Text('Ernakulam (Lat: 9.9816, Lng: 76.2999)'),
                 value: true,
                 groupValue: LocationService.simulateInsideOffice,
                 onChanged: (val) {
