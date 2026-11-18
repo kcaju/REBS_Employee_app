@@ -34,10 +34,10 @@ class DashboardRepository {
         casualLeaveRemaining: 8,
         sickLeaveRemaining: 5,
         officeConfig: OfficeConfig(
-          latitude: 9.9816,
-          longitude: 76.2999,
+          latitude: 10.8505,
+          longitude: 76.2711,
           radiusMeters: 200.0,
-          officeName: 'REBS Tech Center - Ernakulam, Kerala',
+          officeName: 'REBS Office',
           timezone: 'Asia/Kolkata',
         ),
       );

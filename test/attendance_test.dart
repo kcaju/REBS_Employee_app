@@ -5,6 +5,7 @@ import 'package:employee_app/features/attendance/data/attendance_local_data_sour
 import 'package:employee_app/features/attendance/data/attendance_remote_data_source.dart';
 import 'package:employee_app/features/attendance/data/attendance_repository_impl.dart';
 import 'package:employee_app/features/attendance/domain/attendance_models.dart';
+import 'package:employee_app/core/services/location_service.dart';
 import 'package:employee_app/core/services/sync_queue_manager.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:mocktail/mocktail.dart';
@@ -180,6 +181,47 @@ void main() {
 
       final allUpdated = await localDataSource.getAllRecords();
       expect(allUpdated.every((r) => r.syncStatus == SyncStatus.synced), isTrue);
+    });
+
+    test('4. Configurable office coordinates allow check-in within 200m and reject beyond 200m', () async {
+      final locService = LocationService();
+
+      // Configured Office Coordinates (e.g. from Mock API)
+      const configuredOfficeLat = 10.8505;
+      const configuredOfficeLng = 76.2711;
+      const allowedRadius = 200.0;
+
+      // Scenario A: Reviewer simulates location inside office (<= 200m)
+      LocationConfig.setInsideOffice(
+        officeLat: configuredOfficeLat,
+        officeLng: configuredOfficeLng,
+      );
+
+      final insideResult = await locService.getCurrentLocationAndValidate(
+        officeLat: configuredOfficeLat,
+        officeLng: configuredOfficeLng,
+        radiusMeters: allowedRadius,
+      );
+
+      expect(insideResult.isWithinGeofence, isTrue);
+      expect(insideResult.distanceMeters, lessThanOrEqualTo(allowedRadius));
+      expect(insideResult.errorMessage, isNull);
+
+      // Scenario B: Reviewer simulates location outside office (> 200m)
+      LocationConfig.setOutsideOffice(
+        officeLat: configuredOfficeLat,
+        officeLng: configuredOfficeLng,
+      );
+
+      final outsideResult = await locService.getCurrentLocationAndValidate(
+        officeLat: configuredOfficeLat,
+        officeLng: configuredOfficeLng,
+        radiusMeters: allowedRadius,
+      );
+
+      expect(outsideResult.isWithinGeofence, isFalse);
+      expect(outsideResult.distanceMeters, greaterThan(allowedRadius));
+      expect(outsideResult.errorMessage, contains('Check-in is only permitted within 200m'));
     });
   });
 }

@@ -20,6 +20,7 @@ class OfficeConfig extends Equatable {
       'latitude': latitude,
       'longitude': longitude,
       'radius_meters': radiusMeters,
+      'allowed_radius': radiusMeters,
       'office_name': officeName,
       'timezone': timezone,
     };
@@ -29,8 +30,8 @@ class OfficeConfig extends Equatable {
     return OfficeConfig(
       latitude: (map['latitude'] as num).toDouble(),
       longitude: (map['longitude'] as num).toDouble(),
-      radiusMeters: (map['radius_meters'] as num?)?.toDouble() ?? 200.0,
-      officeName: map['office_name'] as String? ?? 'Headquarters',
+      radiusMeters: ((map['allowed_radius'] ?? map['radius_meters']) as num?)?.toDouble() ?? 200.0,
+      officeName: map['office_name'] as String? ?? 'REBS Office',
       timezone: map['timezone'] as String? ?? 'Asia/Kolkata',
     );
   }

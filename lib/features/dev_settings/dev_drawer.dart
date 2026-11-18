@@ -6,6 +6,7 @@ import '../../core/services/location_service.dart';
 import '../../core/theme/app_theme.dart';
 import '../../server/embedded_mock_server.dart';
 import '../attendance/presentation/attendance_bloc.dart';
+import '../dashboard/presentation/dashboard_bloc.dart';
 
 class DevSettingsDrawer extends StatefulWidget {
   final VoidCallback onSettingsChanged;
@@ -41,9 +42,67 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
             ),
             const Divider(height: 24, color: Colors.white12),
 
-            // 1. Geofence Location Simulation
+            // 1. Configured Office Coordinates (From Mock API / Config)
             const Text(
-              'LOCATION SIMULATION',
+              'CONFIGURED OFFICE COORDINATES',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.textMuted,
+                letterSpacing: 1.1,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Builder(
+              builder: (context) {
+                final officeConfig = context.watch<DashboardCubit>().state.profile?.officeConfig;
+                final officeLat = officeConfig?.latitude ?? LocationConfig.defaultOfficeLat;
+                final officeLng = officeConfig?.longitude ?? LocationConfig.defaultOfficeLng;
+                final radius = officeConfig?.radiusMeters ?? LocationConfig.defaultRadiusMeters;
+                final officeName = officeConfig?.officeName ?? LocationConfig.defaultOfficeName;
+
+                return Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF24164C),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.business_rounded, color: AppTheme.purpleLight, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              officeName,
+                              style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Latitude: $officeLat\nLongitude: $officeLng\nAllowed Radius: ${radius.toInt()} metres',
+                        style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11, height: 1.4),
+                      ),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Received dynamically from Mock API (/employee/me) and used in attendance calculations without hardcoding.',
+                        style: TextStyle(color: AppTheme.textMuted, fontSize: 10, fontStyle: FontStyle.italic),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            const Divider(height: 24, color: Colors.white12),
+
+            // 2. Geofence Location Simulation
+            const Text(
+              'LOCATION SIMULATION (DEVELOPMENT MODE)',
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
@@ -59,77 +118,93 @@ class _DevSettingsDrawerState extends State<DevSettingsDrawer> {
                 side: const BorderSide(color: Colors.white12),
               ),
               clipBehavior: Clip.antiAlias,
-              child: Column(
-                children: [
-                  SwitchListTile(
-                    activeColor: AppTheme.purplePrimary,
-                    title: const Text(
-                      'Simulate Location',
-                      style: TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                    subtitle: Text(
-                      LocationService.simulateLocation
-                          ? 'Simulated coordinates active'
-                          : 'Simulation is OFF',
-                      style: const TextStyle(
-                        color: AppTheme.textSecondary,
-                        fontSize: 12,
-                      ),
-                    ),
-                    value: LocationService.simulateLocation,
-                    onChanged: (val) {
-                      setState(() => LocationService.simulateLocation = val);
-                      widget.onSettingsChanged();
-                    },
-                  ),
-                  if (LocationService.simulateLocation) ...[
-                    const Divider(height: 1, color: Colors.white10),
-                    RadioListTile<bool>(
-                      activeColor: AppTheme.purplePrimary,
-                      title: const Text(
-                        'Inside Office (<= 200m)',
-                        style: TextStyle(color: Colors.white, fontSize: 13),
-                      ),
-                      subtitle: const Text(
-                        'Ernakulam (Lat: 9.9816, Lng: 76.2999)',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 11,
+              child: Builder(
+                builder: (context) {
+                  final officeConfig = context.watch<DashboardCubit>().state.profile?.officeConfig;
+                  final officeLat = officeConfig?.latitude ?? LocationConfig.defaultOfficeLat;
+                  final officeLng = officeConfig?.longitude ?? LocationConfig.defaultOfficeLng;
+
+                  final isInside = LocationConfig.mockLatitude == officeLat && LocationConfig.mockLongitude == officeLng;
+
+                  return Column(
+                    children: [
+                      SwitchListTile(
+                        activeColor: AppTheme.purplePrimary,
+                        title: const Text(
+                          'Use Mock Location',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
-                      ),
-                      value: true,
-                      groupValue: LocationService.simulateInsideOffice,
-                      onChanged: (val) {
-                        setState(
-                          () => LocationService.simulateInsideOffice = val!,
-                        );
-                        widget.onSettingsChanged();
-                      },
-                    ),
-                    RadioListTile<bool>(
-                      activeColor: AppTheme.purplePrimary,
-                      title: const Text(
-                        'Outside Office (> 200m)',
-                        style: TextStyle(color: Colors.white, fontSize: 13),
-                      ),
-                      subtitle: const Text(
-                        'Simulates 1.6 km away (Violation test)',
-                        style: TextStyle(
-                          color: AppTheme.textMuted,
-                          fontSize: 11,
+                        subtitle: Text(
+                          LocationConfig.useMockLocation
+                              ? 'Using simulated coordinates (Reviewer mode)'
+                              : 'Using real device hardware GPS (Geolocator)',
+                          style: const TextStyle(
+                            color: AppTheme.textSecondary,
+                            fontSize: 12,
+                          ),
                         ),
+                        value: LocationConfig.useMockLocation,
+                        onChanged: (val) {
+                          setState(() => LocationConfig.useMockLocation = val);
+                          widget.onSettingsChanged();
+                        },
                       ),
-                      value: false,
-                      groupValue: LocationService.simulateInsideOffice,
-                      onChanged: (val) {
-                        setState(
-                          () => LocationService.simulateInsideOffice = val!,
-                        );
-                        widget.onSettingsChanged();
-                      },
-                    ),
-                  ],
-                ],
+                      if (LocationConfig.useMockLocation) ...[
+                        const Divider(height: 1, color: Colors.white10),
+                        RadioListTile<bool>(
+                          activeColor: AppTheme.purplePrimary,
+                          title: const Text(
+                            'Inside Office (<= 200m)',
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                          ),
+                          subtitle: Text(
+                            'Coordinates: $officeLat, $officeLng\nDistance: 0m (Check-in allowed)',
+                            style: const TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
+                          value: true,
+                          groupValue: isInside,
+                          onChanged: (_) {
+                            setState(() {
+                              LocationConfig.setInsideOffice(
+                                officeLat: officeLat,
+                                officeLng: officeLng,
+                              );
+                            });
+                            widget.onSettingsChanged();
+                          },
+                        ),
+                        RadioListTile<bool>(
+                          activeColor: AppTheme.purplePrimary,
+                          title: const Text(
+                            'Outside Office (> 200m)',
+                            style: TextStyle(color: Colors.white, fontSize: 13),
+                          ),
+                          subtitle: const Text(
+                            'Simulates ~2.3 km away\nDistance: > 200m (Rejection test)',
+                            style: TextStyle(
+                              color: AppTheme.textMuted,
+                              fontSize: 11,
+                            ),
+                          ),
+                          value: false,
+                          groupValue: isInside,
+                          onChanged: (_) {
+                            setState(() {
+                              LocationConfig.setOutsideOffice(
+                                officeLat: officeLat,
+                                officeLng: officeLng,
+                              );
+                            });
+                            widget.onSettingsChanged();
+                          },
+                        ),
+                      ],
+                    ],
+                  );
+                },
               ),
             ),
 

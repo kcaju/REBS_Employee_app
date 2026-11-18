@@ -84,7 +84,7 @@ flutter run
 | :--- | :--- |
 | **Theme & Background** | Deep purple dark theme (`#150D2A` / `#25164E`) matching `assets/bg.png` with glowing translucent card containers (`#8B5CF6`, `#22D3EE`, `#FB923C`). |
 | **Responsive Layout** | Adaptable across all mobile screen widths (320px compact screens to large displays) with zero `RenderFlex` overflow errors. |
-| **Geofenced Punch-In/Out** | Concentric glowing circular punch button enforcing a 200-meter radius around office coordinates (`12.9716, 77.5946`). |
+| **Geofenced Punch-In/Out** | Concentric glowing circular punch button enforcing a 200-meter radius around configurable office coordinates (`10.8505, 76.2711`) received dynamically from Mock API (`/employee/me`). |
 | **Real-Time Duration Ticker** | Automatic live timer running every second while checked in, displaying accumulated working hours. |
 | **Today's Status Chip** | Real-time status indicator (`Checked In`, `Checked Out`, `Not Checked In`) with matching iconography and colors. |
 | **Attendance Stats Box** | 3-column breakdown showing **Check In** time & sync badge, **Check Out** time & sync badge, and **Working Hrs**. |
@@ -108,9 +108,19 @@ Follow these step-by-step instructions to experience every feature and validatio
 ### Walkthrough 1: Dashboard & Online Punch-In
 1. **Launch the App**: The app opens to the REBS Workspace Dashboard with the dark purple background and glowing card containers.
 2. **Review Header**: Notice the employee profile (**EMP-1049**, "Software Engineer", Engineering department) and company date.
-3. **Verify Geofence State**:
+3. **Verify Configured Office Coordinates & Mock GPS State**:
    - Tap the **Gear Icon (⚙️)** in the top-right app bar to open the Dev Drawer.
-   - Confirm **Location Simulation** is set to **Inside Office (<= 200m)**.
+   - Inspect **CONFIGURED OFFICE COORDINATES**:
+     ```json
+     {
+       "office_name": "REBS Office",
+       "latitude": 10.8505,
+       "longitude": 76.2711,
+       "allowed_radius": 200
+     }
+     ```
+     *(Received dynamically from the Mock API `/employee/me` and used in attendance calculations without hardcoding).*
+   - Under **LOCATION SIMULATION (DEVELOPMENT MODE)**, ensure **Use Mock Location** is ON and **Inside Office (<= 200m)** is selected (distance: 0m).
    - Swipe left or tap outside to close the drawer.
 4. **Perform Punch-In**:
    - Tap the purple glowing **PUNCH IN** button in the attendance box.
@@ -127,17 +137,30 @@ Follow these step-by-step instructions to experience every feature and validatio
 ### Walkthrough 2: Geofencing Rejection (Outside Office)
 1. **Simulate Out-of-Bounds Location**:
    - Open the Dev Drawer (⚙️).
-   - Under **Location Simulation**, select **Outside Office (> 200m)** (simulates 1.6 km away).
+   - Under **LOCATION SIMULATION**, select **Outside Office (> 200m)** (simulates ~2.3 km away).
    - Close the drawer.
 2. **Attempt Punch Action**:
    - If not checked in, tap **PUNCH IN**; if checked in, tap **PUNCH OUT**.
    - **Expected Outcome**:
      - The action is blocked immediately.
      - A floating snackbar with a crimson glowing border appears:
-       > *"You are outside the office geofence (~1600m away). Check-in/out is only permitted within 200m."*
+       > *"You are 2354m away from the office. Check-in is only permitted within 200m."*
      - No records are added to the database.
 3. **Restore Location**:
    - Open Dev Drawer (⚙️) $\rightarrow$ Select **Inside Office (<= 200m)**.
+
+---
+
+### Walkthrough 2b: Real Device Hardware GPS Tracking
+1. **Toggle Off Mock Location**:
+   - Open the Dev Drawer (⚙️).
+   - Toggle **Use Mock Location** to **OFF**.
+   - Close the drawer.
+2. **Device Hardware GPS Evaluation**:
+   - The app directly queries real device GPS sensors via `geolocator`.
+   - If location permission was not yet granted, the OS permission dialog appears.
+   - If your current physical location is outside the 200m radius of REBS Office (`10.8505, 76.2711`), check-in is rejected with your real distance away.
+   - To test successful real-world check-in from your current location, you can update the office coordinates in the API or Dev Drawer to match your current GPS coordinates.
 
 ---
 
@@ -265,7 +288,7 @@ The project includes unit, domain, and widget test suites covering all critical 
 flutter test
 ```
 
-### Complete Test Coverage Matrix (11/11 Passing)
+### Complete Test Coverage Matrix (12/12 Passing)
 
 | # | Test Suite | Test Case Description | Requirement Covered |
 | :-: | :--- | :--- | :--- |
@@ -279,7 +302,8 @@ flutter test
 | **8** | `attendance_test.dart` | Check-out without check-in is rejected | Attendance state machine rule |
 | **9** | `attendance_test.dart` | Repeated submission or retry does not create duplicate attendance | RFC 4122 v4 Idempotency key |
 | **10** | `attendance_test.dart` | Pending attendance survives persistence and syncs in order (FIFO) | SQLite persistence & FIFO order |
-| **11** | `widget_test.dart` | Dashboard renders Today's status chip, 'Pending Sync' badge, and pending count badge | UI state & offline badge rendering |
+| **11** | `attendance_test.dart` | Configurable office coordinates allow check-in within 200m and reject beyond 200m | Configurable office geofence rule |
+| **12** | `widget_test.dart` | Dashboard renders Today's status chip, 'Pending Sync' badge, and pending count badge | UI state & offline badge rendering |
 
 ---
 
