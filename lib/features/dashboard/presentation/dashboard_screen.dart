@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
+import '../../../core/services/location_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/app_background.dart';
 import '../../../core/widgets/app_snackbar.dart';
