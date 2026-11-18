@@ -263,8 +263,8 @@ class MockApiServer {
         'department': 'Mobile Engineering',
         'role': 'Flutter Developer',
         'office_config': {
-          'latitude': 10.382439,
-          'longitude': 76.288664,
+          'latitude': 10.027785,
+          'longitude': 76.336615,
           'radius_meters': 200.0,
           'allowed_radius': 200.0,
           'office_name': 'REBS Office',

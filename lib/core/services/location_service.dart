@@ -12,8 +12,8 @@ class LocationConfig {
 
   /// Default configured office coordinates (matches mock API employee profile)
   static const String defaultOfficeName = 'REBS Office';
-  static const double defaultOfficeLat = 10.382439;
-  static const double defaultOfficeLng = 76.288664;
+  static const double defaultOfficeLat = 10.027785;
+  static const double defaultOfficeLng = 76.336615;
   static const double defaultRadiusMeters = 200.0;
 
   /// Configurable simulated employee coordinates (used only when [useMockLocation] is true).

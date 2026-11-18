@@ -188,8 +188,8 @@ void main() {
       final locService = LocationService();
 
       // Configured Office Coordinates (e.g. from Mock API)
-      const configuredOfficeLat = 10.8505;
-      const configuredOfficeLng = 76.2711;
+      const configuredOfficeLat = 10.027785;
+      const configuredOfficeLng = 76.336615;
       const allowedRadius = 200.0;
 
       // Scenario A: Reviewer simulates location inside office (<= 200m)

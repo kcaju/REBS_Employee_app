@@ -110,7 +110,7 @@ Follow these step-by-step instructions to experience every feature and validatio
 2. **Review Header**: Notice the employee profile (**EMP-1049**, "Software Engineer", Engineering department) and current date.
 3. **Capture Timestamp & Real GPS Coordinates**:
    - Tapping **PUNCH IN** requests device location permissions (if not already granted).
-   - Once acquired, it checks your current real GPS coordinates against the configured office coordinates (`10.382439, 76.288664`, radius: 200m).
+   - Once acquired, it checks your current real GPS coordinates against the configured office coordinates (`10.027785, 76.336615`, radius: 200m).
    - If within 200 metres:
      - Check-in succeeds immediately! The exact timestamp (`DateTime.now()`) and GPS coordinates are recorded locally in SQLite and synced to the backend.
      - A dark floating snackbar confirms: *"Checked in successfully"*.
@@ -123,20 +123,23 @@ Follow these step-by-step instructions to experience every feature and validatio
 
 ---
 
-### Walkthrough 2: Reviewer Location Simulation (Testing Anywhere)
-If a reviewer or evaluator is testing away from the office coordinates:
-1. **Open Dev Drawer (⚙️)**:
-   - Tap the **Gear Icon (⚙️)** in the top-right app bar.
-   - Under **LOCATION SIMULATION (DEVELOPMENT MODE)**, toggle **Use Mock Location** to **ON**.
-2. **Test Inside Office (<= 200m)**:
-   - Select **Inside Office (<= 200m)** (distance: 0m).
-   - Tap **PUNCH IN** or **PUNCH OUT** $\rightarrow$ Attendance is accepted successfully!
-3. **Test Outside Office (> 200m)**:
-   - Select **Outside Office (> 200m)** (simulates ~2.3 km away).
-   - Tap **PUNCH IN** or **PUNCH OUT** $\rightarrow$ Rejection snackbar appears:
-     > *"You are 2.3 km away from the office. Attendance is permitted only within 200 metres of the office."*
-4. **Return to Real GPS**:
-   - Toggle **Use Mock Location** back to **OFF** (or simply restart the app, which always resets mock location to OFF).
+### Walkthrough 2: Configured Office Geofencing Evaluation
+1. **Configured Office Coordinates**:
+   - Tap the **Gear Icon (⚙️)** in the top-right app bar to open the Dev Drawer.
+   - Inspect **CONFIGURED OFFICE COORDINATES**:
+     ```json
+     {
+       "office_name": "REBS Office",
+       "latitude": 10.027785,
+       "longitude": 76.336615,
+       "allowed_radius": 200
+     }
+     ```
+     *(Received dynamically from the Mock API `/employee/me` and used in attendance calculations without hardcoding).*
+2. **Geofence Evaluation with Real Hardware GPS**:
+   - When the user is within 200 metres of `10.027785, 76.336615`, tapping **PUNCH IN** or **PUNCH OUT** succeeds immediately.
+   - When the user is outside the 200-metre radius, the app precisely calculates the distance via `Geolocator.distanceBetween` and presents a crimson floating snackbar:
+     > *"You are X km away from the office. Attendance is permitted only within 200 metres of the office."*
 
 ---
 
