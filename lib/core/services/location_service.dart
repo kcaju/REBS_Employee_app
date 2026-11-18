@@ -144,7 +144,7 @@ class LocationService {
       // 3. Acquire current GPS position
       Position? position;
 
-      // Try last known cached position first
+      // Try last known cached position first (near-instant on Android)
       try {
         position = await Geolocator.getLastKnownPosition();
       } catch (_) {}
@@ -159,7 +159,7 @@ class LocationService {
         );
         position = freshPosition;
       } catch (_) {
-        // Fallback to low accuracy if needed
+        // Fallback to low accuracy if fresh lookup timed out
         if (position == null) {
           try {
             position = await Geolocator.getCurrentPosition(
