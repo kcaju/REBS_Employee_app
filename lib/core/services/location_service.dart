@@ -141,21 +141,45 @@ class LocationService {
         );
       }
 
+      Position? position;
+
+      // 1. Try to get last known position first (near-instant on Android if recently located)
       try {
-        final position = await Geolocator.getCurrentPosition(
+        position = await Geolocator.getLastKnownPosition();
+      } catch (_) {}
+
+      // 2. Fetch fresh position using medium accuracy (works indoors via Wi-Fi/Cell/GPS)
+      try {
+        final freshPosition = await Geolocator.getCurrentPosition(
           locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            timeLimit: Duration(seconds: 10),
+            accuracy: LocationAccuracy.medium,
+            timeLimit: Duration(seconds: 8),
           ),
         );
-        employeeLatitude = position.latitude;
-        employeeLongitude = position.longitude;
-      } catch (e) {
+        position = freshPosition;
+      } catch (_) {
+        // If fresh lookup timed out or failed, try low accuracy if we don't have a cached position yet
+        if (position == null) {
+          try {
+            position = await Geolocator.getCurrentPosition(
+              locationSettings: const LocationSettings(
+                accuracy: LocationAccuracy.low,
+                timeLimit: Duration(seconds: 5),
+              ),
+            );
+          } catch (_) {}
+        }
+      }
+
+      if (position == null) {
         return LocationResult.failure(
           message:
-              'Failed to acquire real GPS location ($e). Turn on Mock Location in Reviewer Controls (⚙️) to test without hardware GPS.',
+              'Unable to get GPS fix on this device. Please turn on Google Location Accuracy/Wi-Fi, or enable Mock Location in Reviewer Controls (⚙️).',
         );
       }
+
+      employeeLatitude = position.latitude;
+      employeeLongitude = position.longitude;
     }
 
     // 2. Calculate distance between employee and configured office coordinates
