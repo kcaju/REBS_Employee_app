@@ -426,19 +426,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
       onTap: canPress
           ? () {
               final profile = context.read<DashboardCubit>().state.profile;
+              final officeLat = profile?.officeConfig.latitude ?? LocationConfig.defaultOfficeLat;
+              final officeLng = profile?.officeConfig.longitude ?? LocationConfig.defaultOfficeLng;
+              final radiusMeters = profile?.officeConfig.radiusMeters ?? LocationConfig.defaultRadiusMeters;
+
               if (isNotCheckedIn) {
                 context.read<AttendanceCubit>().checkIn(
                   employeeId: profile?.id ?? 'EMP-1049',
-                  officeLat: profile?.officeConfig.latitude ?? 9.9816,
-                  officeLng: profile?.officeConfig.longitude ?? 76.2999,
-                  radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
+                  officeLat: officeLat,
+                  officeLng: officeLng,
+                  radiusMeters: radiusMeters,
                 );
               } else if (isCheckedIn) {
                 context.read<AttendanceCubit>().checkOut(
                   employeeId: profile?.id ?? 'EMP-1049',
-                  officeLat: profile?.officeConfig.latitude ?? 9.9816,
-                  officeLng: profile?.officeConfig.longitude ?? 76.2999,
-                  radiusMeters: profile?.officeConfig.radiusMeters ?? 200.0,
+                  officeLat: officeLat,
+                  officeLng: officeLng,
+                  radiusMeters: radiusMeters,
                 );
               }
             }

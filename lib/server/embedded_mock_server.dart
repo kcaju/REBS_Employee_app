@@ -101,8 +101,11 @@ class MockApiServer {
 
         final status = (req['status'] as String? ?? '').toLowerCase();
         if (status == 'approved' || status == 'pending') {
-          final start = DateTime.tryParse(req['start_date'] as String? ?? '') ?? DateTime.now();
-          final end = DateTime.tryParse(req['end_date'] as String? ?? '') ?? start;
+          final start =
+              DateTime.tryParse(req['start_date'] as String? ?? '') ??
+              DateTime.now();
+          final end =
+              DateTime.tryParse(req['end_date'] as String? ?? '') ?? start;
           final days = end.difference(start).inDays + 1;
           final type = (req['leave_type'] as String? ?? '').toLowerCase();
           if (type == 'casual') {
@@ -260,8 +263,8 @@ class MockApiServer {
         'department': 'Mobile Engineering',
         'role': 'Flutter Developer',
         'office_config': {
-          'latitude': 10.8505,
-          'longitude': 76.2711,
+          'latitude': 10.382439,
+          'longitude': 76.288664,
           'radius_meters': 200.0,
           'allowed_radius': 200.0,
           'office_name': 'REBS Office',

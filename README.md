@@ -105,62 +105,38 @@ flutter run
 
 Follow these step-by-step instructions to experience every feature and validation rule in the application:
 
-### Walkthrough 1: Dashboard & Online Punch-In
-1. **Launch the App**: The app opens to the REBS Workspace Dashboard with the dark purple background and glowing card containers.
-2. **Review Header**: Notice the employee profile (**EMP-1049**, "Software Engineer", Engineering department) and company date.
-3. **Verify Configured Office Coordinates & Mock GPS State**:
-   - Tap the **Gear Icon (⚙️)** in the top-right app bar to open the Dev Drawer.
-   - Inspect **CONFIGURED OFFICE COORDINATES**:
-     ```json
-     {
-       "office_name": "REBS Office",
-       "latitude": 10.8505,
-       "longitude": 76.2711,
-       "allowed_radius": 200
-     }
-     ```
-     *(Received dynamically from the Mock API `/employee/me` and used in attendance calculations without hardcoding).*
-   - Under **LOCATION SIMULATION (DEVELOPMENT MODE)**, ensure **Use Mock Location** is ON and **Inside Office (<= 200m)** is selected (distance: 0m).
-   - Swipe left or tap outside to close the drawer.
-4. **Perform Punch-In**:
-   - Tap the purple glowing **PUNCH IN** button in the attendance box.
-   - **Expected Outcome**:
-     - A dark floating snackbar with an emerald glowing border confirms: *"Checked in successfully"*.
-     - The status chip changes to `Checked In` (green).
-     - The button changes from `PUNCH IN` to `PUNCH OUT`.
+### Walkthrough 1: Real Device Hardware GPS & Office Attendance (Default)
+1. **Launch App**: The app opens directly to the Dashboard. Real Device GPS is **ACTIVE BY DEFAULT** (`LocationConfig.useMockLocation = false`).
+2. **Review Header**: Notice the employee profile (**EMP-1049**, "Software Engineer", Engineering department) and current date.
+3. **Capture Timestamp & Real GPS Coordinates**:
+   - Tapping **PUNCH IN** requests device location permissions (if not already granted).
+   - Once acquired, it checks your current real GPS coordinates against the configured office coordinates (`10.382439, 76.288664`, radius: 200m).
+   - If within 200 metres:
+     - Check-in succeeds immediately! The exact timestamp (`DateTime.now()`) and GPS coordinates are recorded locally in SQLite and synced to the backend.
+     - A dark floating snackbar confirms: *"Checked in successfully"*.
+     - The status chip changes to `Checked In` (green) and button transitions to `PUNCH OUT`.
      - The **Working Hrs** ticker begins incrementing every second (`0h 0m 1s`, `0h 0m 2s`...).
-     - The **Check In** stat item displays the current time with a `Synced ✓` badge.
-     - A new record appears in the **Recent Attendance** section marked with a `Synced ✓` badge.
+   - If outside 200 metres:
+     - Attendance is blocked with a clear message: *"You are X km away from the office. Attendance is permitted only within 200 metres of the office."*
+   - If location services or permissions are disabled:
+     - Helpful guidance is displayed (e.g. *"Location services are disabled..."* or *"Location permission was denied..."*).
 
 ---
 
-### Walkthrough 2: Geofencing Rejection (Outside Office)
-1. **Simulate Out-of-Bounds Location**:
-   - Open the Dev Drawer (⚙️).
-   - Under **LOCATION SIMULATION**, select **Outside Office (> 200m)** (simulates ~2.3 km away).
-   - Close the drawer.
-2. **Attempt Punch Action**:
-   - If not checked in, tap **PUNCH IN**; if checked in, tap **PUNCH OUT**.
-   - **Expected Outcome**:
-     - The action is blocked immediately.
-     - A floating snackbar with a crimson glowing border appears:
-       > *"You are 2354m away from the office. Check-in is only permitted within 200m."*
-     - No records are added to the database.
-3. **Restore Location**:
-   - Open Dev Drawer (⚙️) $\rightarrow$ Select **Inside Office (<= 200m)**.
-
----
-
-### Walkthrough 2b: Real Device Hardware GPS Tracking
-1. **Toggle Off Mock Location**:
-   - Open the Dev Drawer (⚙️).
-   - Toggle **Use Mock Location** to **OFF**.
-   - Close the drawer.
-2. **Device Hardware GPS Evaluation**:
-   - The app directly queries real device GPS sensors via `geolocator`.
-   - If location permission was not yet granted, the OS permission dialog appears.
-   - If your current physical location is outside the 200m radius of REBS Office (`10.8505, 76.2711`), check-in is rejected with your real distance away.
-   - To test successful real-world check-in from your current location, you can update the office coordinates in the API or Dev Drawer to match your current GPS coordinates.
+### Walkthrough 2: Reviewer Location Simulation (Testing Anywhere)
+If a reviewer or evaluator is testing away from the office coordinates:
+1. **Open Dev Drawer (⚙️)**:
+   - Tap the **Gear Icon (⚙️)** in the top-right app bar.
+   - Under **LOCATION SIMULATION (DEVELOPMENT MODE)**, toggle **Use Mock Location** to **ON**.
+2. **Test Inside Office (<= 200m)**:
+   - Select **Inside Office (<= 200m)** (distance: 0m).
+   - Tap **PUNCH IN** or **PUNCH OUT** $\rightarrow$ Attendance is accepted successfully!
+3. **Test Outside Office (> 200m)**:
+   - Select **Outside Office (> 200m)** (simulates ~2.3 km away).
+   - Tap **PUNCH IN** or **PUNCH OUT** $\rightarrow$ Rejection snackbar appears:
+     > *"You are 2.3 km away from the office. Attendance is permitted only within 200 metres of the office."*
+4. **Return to Real GPS**:
+   - Toggle **Use Mock Location** back to **OFF** (or simply restart the app, which always resets mock location to OFF).
 
 ---
 

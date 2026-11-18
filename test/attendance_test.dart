@@ -70,6 +70,7 @@ void main() {
   });
 
   tearDown(() async {
+    LocationConfig.useMockLocation = false;
     testSyncManager.dispose();
     await inMemoryDb.close();
   });
@@ -221,7 +222,7 @@ void main() {
 
       expect(outsideResult.isWithinGeofence, isFalse);
       expect(outsideResult.distanceMeters, greaterThan(allowedRadius));
-      expect(outsideResult.errorMessage, contains('Check-in is only permitted within 200m'));
+      expect(outsideResult.errorMessage, contains('Attendance is permitted only within 200 metres'));
     });
   });
 }
